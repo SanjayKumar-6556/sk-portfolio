@@ -26,7 +26,7 @@ const jsonLd = {
     siteConfig.social.github,
     siteConfig.social.x,
     siteConfig.social.youtube,
-  ],
+  ].filter(Boolean),
 };
 
 export default function HomePage() {

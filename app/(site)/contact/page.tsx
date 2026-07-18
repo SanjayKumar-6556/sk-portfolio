@@ -111,24 +111,28 @@ export default function ContactPage() {
             >
               <Github className="h-5 w-5" strokeWidth={1.5} />
             </Link>
-            <Link
-              href={siteConfig.social.x}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-border-subtle text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan"
-              aria-label="X"
-            >
-              <XIcon className="h-5 w-5" />
-            </Link>
-            <Link
-              href={siteConfig.social.youtube}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-border-subtle text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan"
-              aria-label="YouTube"
-            >
-              <Youtube className="h-5 w-5" strokeWidth={1.5} />
-            </Link>
+            {siteConfig.social.x && (
+              <Link
+                href={siteConfig.social.x}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-border-subtle text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan"
+                aria-label="X"
+              >
+                <XIcon className="h-5 w-5" />
+              </Link>
+            )}
+            {siteConfig.social.youtube && (
+              <Link
+                href={siteConfig.social.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-border-subtle text-text-secondary hover:border-accent-cyan/35 hover:text-accent-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan"
+                aria-label="YouTube"
+              >
+                <Youtube className="h-5 w-5" strokeWidth={1.5} />
+              </Link>
+            )}
           </div>
           <p className="mt-10 text-xs leading-relaxed text-text-muted">
             Privacy: this site uses no chat widgets or third-party ad trackers

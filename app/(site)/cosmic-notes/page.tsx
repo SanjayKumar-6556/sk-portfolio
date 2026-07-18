@@ -32,16 +32,7 @@ export default function CosmicNotesPage() {
         className="mt-16 rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-12 text-center backdrop-blur-sm"
       >
         <p className="text-text-secondary md:text-lg">
-          New writing arriving soon. Follow{" "}
-          <Link
-            href={siteConfig.social.x}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-accent-cyan underline-offset-4 hover:underline"
-          >
-            X
-          </Link>{" "}
-          or{" "}
+          New writing arriving soon. Connect on{" "}
           <Link
             href={siteConfig.social.linkedin}
             target="_blank"

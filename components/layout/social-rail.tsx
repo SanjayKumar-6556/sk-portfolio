@@ -4,6 +4,7 @@ import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 
 function iconWrap(href: string, label: string, children: React.ReactNode) {
+  if (!href) return null;
   return (
     <Link
       href={href}

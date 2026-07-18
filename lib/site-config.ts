@@ -6,17 +6,19 @@ export const siteConfig = {
     "AI Engineer building intelligent systems, automation workflows, and scalable AI products.",
   aboutTagline:
     "Cosmology-trained, production-built. I design systems that learn, scale, and reason.",
-  /** Replace with your public contact email */
-  email: "contact@example.com",
-  phoneDisplay: "+91 — — — — —",
+  email: "sanjaykumaryadav10108@gmail.com",
+  /** TODO: add your public phone number if you want it shown */
+  phoneDisplay: "",
+  /** Set NEXT_PUBLIC_SITE_URL to your production domain before deploying */
   url:
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
     "http://localhost:3000",
+  /** Empty strings are treated as "not set" and are hidden everywhere. */
   social: {
-    github: "https://github.com/",
-    linkedin: "https://linkedin.com/in/",
-    x: "https://x.com/",
-    youtube: "https://youtube.com/",
+    github: "https://github.com/SanjayKumar-6556",
+    linkedin: "https://www.linkedin.com/in/sanjay-kumar-yadav/",
+    x: "",
+    youtube: "",
   },
   resumePdfPath: "/resume/sanjay-yadav-resume.pdf",
 } as const;

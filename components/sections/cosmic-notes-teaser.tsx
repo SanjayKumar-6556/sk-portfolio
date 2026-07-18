@@ -15,16 +15,7 @@ export function CosmicNotesTeaser() {
         className="mt-10 rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-12 text-center backdrop-blur-sm"
       >
         <p className="text-text-secondary md:text-lg">
-          New writing arriving soon. In the meantime, follow on{" "}
-          <Link
-            href={siteConfig.social.x}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-accent-cyan underline-offset-4 hover:underline"
-          >
-            X
-          </Link>{" "}
-          or{" "}
+          New writing arriving soon. In the meantime, connect on{" "}
           <Link
             href={siteConfig.social.linkedin}
             target="_blank"

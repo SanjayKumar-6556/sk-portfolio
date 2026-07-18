@@ -17,24 +17,26 @@ export const experience = [
 
 export const education = [
   {
-    degree: "M.Sc., Physics (example)",
-    school: "IIT Indore",
-    period: "20XX — 20XX",
-    detail: "Research focus: Bayesian methods & cosmology.",
+    degree: "M.Sc., Astronomy",
+    school: "Indian Institute of Technology (IIT) Indore",
+    period: "2021 — 2023",
+    detail:
+      "Thesis: neural-network emulators (ANN & Bayesian NN) for 21-cm / Epoch-of-Reionization power-spectrum parameter estimation.",
   },
 ];
 
 export const selectedProjects = [
-  "AI demo generator pipeline",
-  "LLM automation platform",
-  "Internal developer dashboards",
+  "Bayesian Neural Network emulator for 21-cm reionization inference",
+  "Multilingual AI localization pipeline (5-language TTS)",
+  "AI demo generation & LLM automation workflows",
 ];
 
 export const resumeResearch = [
-  "Bayesian neural networks for cosmological inference",
+  "Bayesian neural networks for cosmological (21-cm / EoR) parameter inference",
+  "MCMC & importance sampling for Supernova-Ia cosmological constraints",
 ];
 
 export const talks = ["Talk or workshop title — venue (year)"];
 
 export const resumeSkills =
-  "Python, TypeScript, LLM orchestration, Bayesian inference, APIs, cloud deployment.";
+  "Python, JavaScript/TypeScript, PyTorch, TensorFlow, Pyro, LLM orchestration, Bayesian inference, Docker, Kafka, Git, cloud deployment.";

@@ -1,0 +1,74 @@
+---
+slug: bayesian-neural-network
+title: Bayesian neural networks for cosmology
+summary: Master's research probing uncertainty-aware neural surrogates for cosmological inference workflows.
+category: research
+tags:
+  - Bayesian ML
+  - Cosmology
+  - Uncertainty
+  - Thesis work
+year: 2023
+role: Graduate researcher
+stack:
+  - Python
+  - PyTorch
+  - NumPy
+  - MCMC tooling
+status: archived
+featured: false
+hero:
+  src: /projects/hero-placeholder.svg
+  alt: Abstract representation of uncertainty in a scientific model
+links:
+  paper: https://example.com
+publishedAt: "2023-06-01"
+---
+
+## Overview
+
+Exploring how Bayesian neural networks encode epistemic uncertainty when emulating expensive forward models used in cosmological parameter estimation.
+
+## The Problem
+
+Standard neural surrogates gave point predictions without calibrated uncertainty, limiting their role beside rigorous sampling methods.
+
+## Architecture
+
+Probabilistic layers combined with physics-informed training constraints; outputs fed proposal tweaks inside nested sampling loops (described textually — swap with your thesis diagram SVG).
+
+## Key Engineering Challenges
+
+### Calibration under covariate shift
+
+Held-out cosmologies stressed the emulator differently than training shells; ensemble diagnostics highlighted brittle directions.
+
+### Sampling cost
+
+Each likelihood call remained expensive; caching and gradient-aware proposals amortized wall time.
+
+### Communication with physicists
+
+Bridging ML jargon and inference vocabulary mattered as much as network depth.
+
+## Workflows / Pipelines
+
+1. Simulate training spectra / summaries (domain-specific).
+2. Train surrogate with variational posterior over weights.
+3. Validate coverage on toy likelihoods before production chains.
+
+## Stack & Infrastructure
+
+Python scientific stack, GPU lab notebooks, reproducible conda locks.
+
+## Results & Metrics
+
+Demonstrated where BNNs tightened credible intervals versus deterministic nets — replace with your quantitative results.
+
+## What I'd Do Differently
+
+Commit earlier to **explicit calibration plots** every sprint — pretty learning curves hid systematic bias.
+
+## Links
+
+Link the formal thesis/PDF when publishing this page.

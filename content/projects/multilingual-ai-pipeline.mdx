@@ -1,0 +1,73 @@
+---
+slug: multilingual-ai-pipeline
+title: Multilingual AI pipeline
+summary: Orchestrated translation + validation pipeline for shipping the same AI features across locales without quality cliffs.
+category: llm-agents
+tags:
+  - i18n
+  - LLM QA
+  - Pipelines
+  - Evaluation
+year: 2025
+role: Engineer
+stack:
+  - Python
+  - Translation APIs
+  - Custom eval harness
+  - JSON Schema
+status: in-progress
+featured: false
+hero:
+  src: /projects/hero-placeholder.svg
+  alt: Abstract globe-like graphic suggesting multilingual flows
+publishedAt: "2025-05-01"
+---
+
+## Overview
+
+End-to-end workflow that generates localized prompt packs, validates them with bilingual reviewers when needed, and blocks releases when regression tests fail.
+
+## The Problem
+
+Translating prompts verbatim broke tone and safety constraints; teams lacked a single pipeline tying linguistic QA to deployment gates.
+
+## Architecture
+
+Source prompts live in git; CI expands locale matrices, runs automated semantic checks, and attaches reviewer approvals per locale tier.
+
+## Key Engineering Challenges
+
+### Safety parity
+
+Different languages triggered different refusal patterns; golden transcripts per locale caught drift.
+
+### Evaluation debt
+
+Lightweight LLM judges supplemented human spot checks with explicit scorecards.
+
+### Operational overhead
+
+Automerge rules balanced velocity vs scrutiny based on risk classes.
+
+## Workflows / Pipelines
+
+1. Author updates canonical prompt JSON.
+2. CI generates translations + schema validates structure.
+3. Eval harness runs scenario suites per locale.
+4. Approved bundles publish to edge config.
+
+## Stack & Infrastructure
+
+Python services, translation vendors via adapters, artifact registry for frozen prompt bundles.
+
+## Results & Metrics
+
+Locale-specific incidents dropped once releases gated on automated scenarios — insert your metrics.
+
+## What I'd Do Differently
+
+Centralize **style guides** as machine-readable constraints sooner.
+
+## Links
+
+Add public write-up when available.

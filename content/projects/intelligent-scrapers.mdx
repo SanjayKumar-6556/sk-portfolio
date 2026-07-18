@@ -1,0 +1,78 @@
+---
+slug: intelligent-scrapers
+title: Intelligent scrapers
+summary: AI-assisted scraping for Maps and job boards with respectful rate limits, structured extraction, and monitoring.
+category: automation
+tags:
+  - Scraping
+  - Extraction
+  - Scheduling
+  - Data quality
+year: 2024
+role: Engineer
+stack:
+  - Python
+  - Playwright
+  - Pydantic
+  - Prometheus
+status: shipped
+featured: true
+hero:
+  src: /projects/hero-placeholder.svg
+  alt: Abstract grid suggesting structured data extraction
+publishedAt: "2024-11-20"
+metrics:
+  - label: Parse regressions caught
+    value: CI schema tests
+  - label: Junk rows filtered
+    value: Heuristic + LLM hybrid
+---
+
+## Overview
+
+Pipelines collect targeted public data, normalize records, and emit validated rows for downstream analytics — without turning operators into DOM archaeologists.
+
+## The Problem
+
+Brittle selectors and silent layout drift meant dashboards lied quietly. Manual fixes did not scale across locales.
+
+## Architecture
+
+Scheduler triggers bounded browser sessions; extraction combines structural cues with lightweight LLM repair for messy cells. Everything flows through Pydantic models with golden fixtures.
+
+## Key Engineering Challenges
+
+### Politeness and stability
+
+Concurrency caps, backoff, and robots awareness kept us good netizens while preserving freshness SLAs.
+
+### Schema drift
+
+Weekly probes compared checksums of canonical selectors; failures opened tickets with captured HTML snippets.
+
+### Cost-aware LLM usage
+
+LLM passes ran only when heuristic parsers flagged ambiguity.
+
+## Workflows / Pipelines
+
+1. Job enqueue with source + locale parameters.
+2. Fetch + extract + validate.
+3. Dead-letter quarantine for anomalies.
+4. Metrics exported per source.
+
+## Stack & Infrastructure
+
+Python workers, object storage for raw captures, Prometheus alerts on error budgets.
+
+## Results & Metrics
+
+Analysts trusted exports enough to automate weekly reports instead of spot checks.
+
+## What I'd Do Differently
+
+Invest sooner in **replay sandbox** fixtures mirroring production DOM variance.
+
+## Links
+
+Add case study artifacts when cleared for sharing.

@@ -1,0 +1,84 @@
+---
+slug: ai-demo-generator
+title: AI demo generator
+summary: Claude-based pipeline that turns product specs into narrated, artifact-rich demos for stakeholders.
+category: llm-agents
+tags:
+  - Claude
+  - Prompt orchestration
+  - Demo automation
+  - Internal tools
+year: 2025
+role: Lead engineer
+stack:
+  - Python
+  - TypeScript
+  - LLM APIs
+  - FFmpeg
+status: shipped
+featured: true
+hero:
+  src: /projects/hero-placeholder.svg
+  alt: Abstract network visualization representing an automated demo pipeline
+links:
+  github: https://github.com/
+publishedAt: "2025-03-15"
+metrics:
+  - label: Time to first demo
+    value: −62%
+  - label: Stakeholder iterations
+    value: 3× faster
+---
+
+## Overview
+
+This system generates reproducible product demos from structured inputs: feature bullets, screenshots, and a target persona. Instead of one-off Loom recordings, teams get versioned scripts, visuals, and narration that stay aligned with releases.
+
+## The Problem
+
+Manual demos broke every sprint: engineers rebuilt narratives from scratch, terminology drifted from the doc layer, and reviewers spent cycles on formatting instead of product substance.
+
+## Architecture
+
+Data flows from a **content manifest** (YAML/JSON) into an orchestration worker. The worker calls an LLM for scene breakdowns, renders slides or browser captures per scene, and stitches outputs with a deterministic CLI. Idempotent runs mean CI can emit demos on tag.
+
+```text
+Manifest → Validator → Planner (LLM) → Scene workers → Renderer → Assembler → Artifact store
+```
+
+## Key Engineering Challenges
+
+### Determinism vs creativity
+
+Creative beats had to feel natural without sacrificing repeatability. The fix was a **two-phase** planner: frozen outline approval, then constrained generation per scene with shared glossary injection.
+
+### Latency and cost
+
+Long-form narration blew token budgets. Chunked generation with rolling summaries and aggressive caching of reusable beats kept spend predictable.
+
+### QA without pixel-perfect goldens
+
+Human review gates focused on factual anchors (URLs, metrics, names) while automated checks enforced schema and duration envelopes.
+
+## Workflows / Pipelines
+
+1. Author updates manifest and opens a PR.
+2. CI validates schema + runs dry planner (no media).
+3. On approval, full pipeline emits `.mp4` + markdown companion.
+4. Slack posts preview links with hashed artifact IDs.
+
+## Stack & Infrastructure
+
+Python workers, TypeScript CLI, object storage for renders, and queue-triggered jobs on release tags.
+
+## Results & Metrics
+
+Demo prep stopped blocking releases; PMMs reused scenes across segments with localized voice variants.
+
+## What I'd Do Differently
+
+Earlier investment in **evaluation harnesses** for hallucinated metrics — even internal demos deserve regression tests on numeric claims.
+
+## Links
+
+- Repository or write-up (add your real links in frontmatter when ready).

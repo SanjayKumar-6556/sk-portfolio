@@ -1,74 +1,216 @@
 ---
 slug: bayesian-neural-network
-title: Bayesian neural networks for cosmology
-summary: Master's research probing uncertainty-aware neural surrogates for cosmological inference workflows.
+title: Uncertainty-aware neural emulators for 21-cm cosmology
+summary: Neural surrogates that replace hours of cosmological simulation with milliseconds of prediction — plus a Bayesian version that reports what it does not know, so emulator error reaches the final parameter constraints.
 category: research
 tags:
-  - Bayesian ML
-  - Cosmology
-  - Uncertainty
-  - Thesis work
-year: 2023
-role: Graduate researcher
+  - Bayesian deep learning
+  - Uncertainty quantification
+  - MCMC
+  - Surrogate models
+year: 2024
+role: MSc thesis research, IIT Indore
 stack:
   - Python
-  - PyTorch
-  - NumPy
-  - MCMC tooling
-status: archived
-featured: false
+  - Pyro / PyTorch
+  - TensorFlow / Keras
+  - NumPy / SciPy
+  - GetDist
+status: shipped
+featured: true
 hero:
   src: /projects/hero-placeholder.svg
-  alt: Abstract representation of uncertainty in a scientific model
+  alt: Abstract representation of an uncertainty band around a predicted signal
 links:
-  paper: https://example.com
-publishedAt: "2023-06-01"
+  paper: https://doi.org/10.1088/1475-7516/2025/12/055
+publishedAt: "2026-08-16"
+metrics:
+  - label: Published in
+    value: JCAP 12 (2025) 055
+  - label: Emulator map
+    value: 3 params → 7 k-bins
+  - label: Training library
+    value: 7,150 samples
+  - label: Mock observation
+    value: 1000 hr SKA-Low
 ---
 
-## Overview
+{/*
+  ASSET NOTE (not rendered). Real, publication-grade figures for this page exist on disk:
+  - ANN vs BNN prediction with uncertainty band:
+    ~/Msc Project/master_thesis_sk/all_plots/predictions/ann_bnn_comparision/whole_dataset_size/
+  - Posterior contours, full grid {ann,bnn} x {200,500,1000,7150} training sizes:
+    ~/Msc Project/master_thesis_sk/all_plots/constraints/
+  - Vector PDFs of the ANN/BNN contours for three fiducial cases:
+    ~/Downloads/Project_BNN_result/Pdf/
+  - R_mfp degeneracy diagnostics:
+    ~/Msc Project/master_thesis_sk/all_plots/R_parameter_degeneracy_reason/
+  - MCMC convergence animations:
+    ~/Msc Project/master_thesis_sk/all_plots/presentation_material/MCMC.gif
+  Nothing here is invented; wire these in as real hero/figure assets when they are exported.
+*/}
 
-Exploring how Bayesian neural networks encode epistemic uncertainty when emulating expensive forward models used in cosmological parameter estimation.
+## In one line
 
-## The Problem
+I built two neural emulators of a cosmological signal — one deterministic, one Bayesian — and
+put them inside an MCMC pipeline that infers the astrophysics of the early Universe from a
+simulated radio-telescope measurement. The Bayesian one carries its own prediction uncertainty
+all the way into the final parameter contours.
 
-Standard neural surrogates gave point predictions without calibrated uncertainty, limiting their role beside rigorous sampling methods.
+**Skills demonstrated:** surrogate modelling, Bayesian deep learning, calibrated uncertainty,
+likelihood design, MCMC, evaluation under shrinking training data, research code packaging.
 
-## Architecture
+## Context
 
-Probabilistic layers combined with physics-informed training constraints; outputs fed proposal tweaks inside nested sampling loops (described textually — swap with your thesis diagram SVG).
+During the Epoch of Reionization, ultraviolet light from the first galaxies ionised the neutral
+hydrogen filling the early Universe. The redshifted 21-cm line of that hydrogen is the most
+direct probe of the era, and its spatial fluctuations are summarised by the 21-cm power
+spectrum.
 
-## Key Engineering Challenges
+Predicting that power spectrum from a given set of astrophysical parameters requires a
+semi-numerical simulation — expensive enough that you cannot afford to run it inside a sampler
+that needs millions of forward evaluations. An **emulator** replaces the simulation with a
+neural network that answers in milliseconds.
 
-### Calibration under covariate shift
+This was my MSc thesis project at the Department of Astronomy, Astrophysics & Space Engineering,
+IIT Indore, supervised by Dr. Suman Majumdar, carried out between June 2023 and May 2024. The
+work later became part of a peer-reviewed paper (details under *Artifacts*).
 
-Held-out cosmologies stressed the emulator differently than training shells; ensemble diagnostics highlighted brittle directions.
+## My role
 
-### Sampling cost
+I did the emulator and inference work described on this page as my own thesis project: the
+training-library preparation, both emulator families, the likelihood, the sampler, and the
+analysis. On the resulting journal paper I am **second author of nine**; the 21-cm
+power-spectrum emulator is the part of that paper I presented as **first author** on a
+conference poster. The paper's bispectrum emulator is collaborators' work and I do not claim it.
 
-Each likelihood call remained expensive; caching and gradient-aware proposals amortized wall time.
+## The problem
 
-### Communication with physicists
+An existing ANN emulator (Tiwari et al.) already did the fast-prediction job, but it has a
+structural limitation: it returns a single number per `k`-bin. There is no statement of how
+much to trust that number. When such an emulator is used as the forward model inside Bayesian
+inference, its own error cannot be propagated into the recovered parameters — so the final
+error bars silently understate the truth.
 
-Bridging ML jargon and inference vocabulary mattered as much as network depth.
+Three things had to happen:
 
-## Workflows / Pipelines
+1. Make the deterministic emulator better where it was actually failing.
+2. Replace the point estimate with a distribution.
+3. Make the inference likelihood consume that distribution honestly.
 
-1. Simulate training spectra / summaries (domain-specific).
-2. Train surrogate with variational posterior over weights.
-3. Validate coverage on toy likelihoods before production chains.
+## Approach
 
-## Stack & Infrastructure
+```text
+reionization parameters
+  (M_h,min, N_ion, R_mfp)
+          │
+          ▼
+   emulator (ANN or BNN)  ──► P(k) at 7 k-bins, z ≈ 7   [+ BNN: predictive sigma]
+          │
+          ▼
+   Gaussian likelihood: cov = sample variance + thermal noise (+ BNN model uncertainty)
+          │
+          ▼
+   Metropolis–Hastings MCMC, 4 parallel chains ──► posterior on the 3 parameters
+```
 
-Python scientific stack, GPU lab notebooks, reproducible conda locks.
+**Training library.** The emulator maps three reionization parameters — minimum host-halo mass
+`M_h,min` (10–800, in units of 10^8 solar masses), ionizing efficiency `N_ion` (10–200), and
+photon mean free path `R_mfp` (1.12–40.32 Mpc) — onto the power spectrum at seven `k`-bins at
+redshift `z ≈ 7`, from simulation boxes of side ≈ 215 cMpc. Initial training used 7,150
+parameter sets.
 
-## Results & Metrics
+**Improving the ANN first.** Before adding Bayesian machinery I widened the training library's
+coverage of parameter space, then located the regions where the emulator's predictions were
+most wrong and increased the density of training samples specifically there. That is a data
+problem, not a model problem, and solving it first meant the later comparison was fair.
 
-Demonstrated where BNNs tightened credible intervals versus deterministic nets — replace with your quantitative results.
+**The Bayesian emulator.** The BNN is a Pyro/PyTorch model, `3 → 50 → 100 → 50 → 7` with ELU
+activations, with Normal priors placed over every weight and bias and a Gamma prior on the
+response noise. The weight posterior is sampled with **NUTS/HMC** rather than fitted with
+variational inference, so the predictive distribution comes from actual posterior samples over
+the network's weights.
 
-## What I'd Do Differently
+**The likelihood is where it pays off.** The covariance in the log-likelihood is built from
+sample variance plus thermal noise for a 1000-hour SKA-Low mock observation — and, for the BNN,
+plus the emulator's own predictive variance in each `k`-bin. The uncertainty is not decoration
+on a plot; it is a term in the inference.
 
-Commit earlier to **explicit calibration plots** every sprint — pretty learning curves hid systematic bias.
+**The sampler.** A hand-written Metropolis–Hastings sampler walks the three-parameter space
+inside a hard prior box, four chains launched in parallel from randomised starting points, with
+posteriors summarised as corner plots.
 
-## Links
+## Trade-offs
 
-Link the formal thesis/PDF when publishing this page.
+- **NUTS over variational inference.** Variational BNNs are far cheaper to train, and that is
+  what most applied work reaches for. I sampled the weight posterior instead, because the whole
+  point of the exercise was whether the emulator's uncertainty is trustworthy enough to enter a
+  likelihood — and a variational approximation would have made the uncertainty itself an
+  approximation of unknown quality. The price is training cost.
+- **A hand-written sampler over an off-the-shelf one.** Writing Metropolis–Hastings myself was
+  slower than importing a library, but it kept the likelihood, the prior box, and the emulator
+  call in one readable path. For a study whose conclusion is about how uncertainty flows through
+  the pipeline, an opaque sampler would have been the wrong dependency.
+- **Two emulator families, two frameworks.** Keeping the ANN in Keras and the BNN in Pyro meant
+  maintaining two stacks. The alternative — reimplementing the ANN in PyTorch — would have made
+  the comparison to the earlier published emulator less direct.
+
+## How it was evaluated
+
+The interesting test was not "does it fit the training set". It was **what happens as the
+training data runs out**, because in practice you never have enough simulations.
+
+I retrained both emulators at 7,150, 1,000, 500 and 200 training samples and ran the full
+inference at each size, for three different fiducial reionization scenarios. Evaluation looked
+at per-`k`-bin prediction against held-out spectra, and at the recovered posterior contours —
+whether the true parameters sit inside the credible region, and how the contours change as the
+emulator degrades.
+
+The finding: with abundant data both emulators behave similarly, but as the training set
+shrinks the ANN becomes confidently wrong — biased predictions with no signal that anything is
+off — while the BNN's predictions stay consistent with truth inside a widening uncertainty band.
+An emulator that widens its error bars when it is under-trained is usable; one that does not is
+a trap.
+
+I also diagnosed the weakest part of the result rather than hiding it: `R_mfp` is the least
+well-constrained of the three parameters, and I produced separate diagnostics showing why the
+power spectrum is relatively insensitive to it over much of the range.
+
+## Results
+
+- Two working emulators, ANN and BNN, for the 21-cm power spectrum at `z ≈ 7`.
+- An inference pipeline in which emulator uncertainty, sample variance and instrument noise are
+  combined in a single covariance.
+- A robustness study across four training-set sizes and three fiducial scenarios showing the BNN
+  degrades gracefully where the ANN does not.
+- The work contributed to a peer-reviewed journal paper (below), whose broader conclusion is
+  that BNN emulators capture prediction uncertainty for both the power spectrum and the
+  bispectrum and give tighter constraints when used inside the inference pipeline.
+
+## What I would do differently
+
+- **The train/infer handoff was never a contract.** Training writes checkpoints under a
+  timestamped path; inference looks for a fixed one. I would define the artefact path in one
+  place and have both sides import it, rather than agreeing by convention.
+- **No entrypoints.** The training and inference modules execute their pipeline at import time.
+  It works when you run them as modules and is a hazard the moment anything imports them. A
+  `main()` behind a guard costs nothing and I skipped it.
+- **Shipped defaults were smoke-test defaults.** The committed configuration carries tiny sample
+  counts used for quick checks, not the values that produce the published results. Anyone
+  cloning the repo runs a toy by accident. Config presets for "smoke" and "paper" would have
+  fixed this.
+- **I would export calibration plots on every run**, not at the end. Coverage — how often the
+  truth lands inside the stated interval — is the number that decides whether an uncertainty
+  estimate is worth anything, and it deserved to be a standing artefact rather than an analysis
+  step.
+
+## Artifacts
+
+- Paper: *From ANN to BNN: Inferring Reionization Parameters using Uncertainty-aware Emulators
+  of 21-cm Summaries*, JCAP 12 (2025) 055 — see the
+  [research page](/research/bnn-cosmology) for the full citation and preprint.
+- Thesis: [Constraining Reionization Parameters through Bayesian Neural Network & Bayesian
+  Inference](/research/msc-thesis) (IIT Indore, 2024), PDF available.
+- Poster: [21-cm power-spectrum BNN emulator](/research/iitm-poster-2024), first author.
+- Code: the emulator package (`src/bnn_emulator`, with training, inference and analysis modules)
+  is being prepared for public release; it is not linked here until it is genuinely public.

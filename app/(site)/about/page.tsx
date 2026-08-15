@@ -2,143 +2,140 @@ import { PageHeader } from "@/components/layout/page-header";
 import { FadeUp } from "@/components/motion/fade-up";
 import { Tag } from "@/components/ui/tag";
 import {
-  beliefPillars,
-  skillCategories,
+  aboutLede,
+  currentlyBody,
+  journeyParagraphs,
+  laneLabel,
+  skillGroups,
   timelineEntries,
+  whatCarriedOver,
+  type Lane,
 } from "@/lib/about-data";
 import { docMetadata } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
-import { Brain, Compass, GraduationCap } from "lucide-react";
 
 export const metadata = docMetadata({
   title: "About",
-  description: siteConfig.aboutTagline,
+  description: aboutLede,
   path: "/about",
 });
 
+/**
+ * Lane grammar: violet marks research provenance, cyan marks shipped
+ * engineering, muted marks training. Links stay cyan everywhere.
+ */
+const laneChip: Record<Lane, string> = {
+  research: "border-accent-violet/35 text-accent-violet",
+  system: "border-accent-cyan/30 text-accent-cyan",
+  study: "border-border-default text-text-muted",
+};
+
+const laneDot: Record<Lane, string> = {
+  research: "border-accent-violet",
+  system: "border-accent-cyan",
+  study: "border-border-strong",
+};
+
 export default function AboutPage() {
   return (
-    <div className="mx-auto max-w-3xl px-6 pb-24 pt-8 md:max-w-4xl">
+    /* Single prose measure for the whole page (design: --measure-prose, 68ch). */
+    <div className="mx-auto w-full max-w-[68ch] px-6 pb-24 pt-8">
       <PageHeader
-        crumbs={[
-          { label: "Home", href: "/" },
-          { label: "About" },
-        ]}
+        crumbs={[{ label: "Home", href: "/" }, { label: "About" }]}
         title="About"
-        subtitle={
-          <>
-            <Tag>{siteConfig.professionalName}</Tag>
-            <Tag>{siteConfig.identity}</Tag>
-          </>
-        }
+        subtitle={<Tag>{siteConfig.professionalName}</Tag>}
       />
 
       <FadeUp>
-        <p className="mt-10 font-display text-xl leading-relaxed text-text-primary md:text-2xl">
-          Hello, I&apos;m <strong className="text-accent-cyan">Sanjay</strong>
-          , an <em className="text-accent-violet not-italic">AI Engineer</em>{" "}
-          with a research background in{" "}
-          <em className="text-accent-cyan not-italic">cosmology</em> and{" "}
-          <em className="text-accent-violet not-italic">
-            Bayesian inference
-          </em>
-          , based in India.
+        <p className="mt-10 font-display text-xl leading-snug text-text-primary md:text-2xl">
+          {aboutLede}
         </p>
       </FadeUp>
 
-      <article className="prose-mdx mt-14 space-y-6 text-[17px] leading-relaxed text-text-secondary md:text-lg">
-        <FadeUp>
-          <p>
-            My path started with a fascination for how mathematical structure
-            describes the universe — not as abstraction for its own sake, but as
-            a disciplined language for testing ideas against data. That instinct
-            carried through graduate training and into industry, where the same
-            principles show up in evaluation design, uncertainty communication,
-            and systems that have to keep working after the demo ends.
-          </p>
-        </FadeUp>
-        <FadeUp delay={0.05}>
-          <p>
-            Today I focus on intelligent systems that bridge research rigor and
-            production muscle: orchestration for LLM workflows, automation that
-            respects operational constraints, and platforms that make AI usage
-            observable instead of opaque.
-          </p>
-        </FadeUp>
-      </article>
+      <div className="mt-12 space-y-6 text-[1.0625rem] leading-[1.7] text-text-secondary">
+        {journeyParagraphs.map((paragraph, i) => (
+          <FadeUp key={i} delay={0.04 * i}>
+            <p>{paragraph}</p>
+          </FadeUp>
+        ))}
+      </div>
 
       <section className="mt-22 md:mt-30">
         <FadeUp>
-          <h2 className="font-display text-3xl font-semibold text-text-primary md:text-4xl">
-            Origin & journey
+          <h2 className="font-display text-3xl font-semibold tracking-[-0.02em] text-text-primary md:text-4xl">
+            The route
           </h2>
         </FadeUp>
-        <ol className="relative mt-12 border-l border-border-default pl-8 md:pl-10">
+        <ol className="relative mt-10 border-l border-border-default pl-8 md:pl-10">
           {timelineEntries.map((entry, i) => (
-            <FadeUp key={entry.title} delay={0.06 * i}>
-              <li className="mb-12 last:mb-0">
-                <span className="absolute -left-[9px] mt-1.5 size-4 rounded-full border-2 border-accent-cyan bg-bg-base md:-left-[11px]" />
-                <p className="font-mono text-xs uppercase tracking-[0.2em] text-text-muted">
-                  {entry.year}
-                </p>
-                <h3 className="mt-2 font-sans text-xl font-semibold text-text-primary">
+            <li key={entry.id} className="relative mb-12 last:mb-0">
+              <FadeUp delay={0.06 * i}>
+                <span
+                  aria-hidden
+                  className={`absolute -left-10 top-1.5 size-4 rounded-full border-2 bg-bg-base md:-left-12 ${laneDot[entry.lane]}`}
+                />
+                <div className="flex flex-wrap items-center gap-3 font-mono text-[0.6875rem] uppercase tracking-[0.18em]">
+                  <span
+                    className={`rounded-full border px-2 py-0.5 ${laneChip[entry.lane]}`}
+                  >
+                    {laneLabel[entry.lane]}
+                  </span>
+                  <span className="text-text-muted">{entry.org}</span>
+                  {entry.period ? (
+                    <span className="text-text-muted">{entry.period}</span>
+                  ) : null}
+                </div>
+                <h3 className="mt-3 font-sans text-xl font-semibold text-text-primary">
                   {entry.title}
                 </h3>
-                <p className="text-sm text-accent-violet">{entry.org}</p>
-                <p className="mt-3 text-text-secondary">{entry.description}</p>
-              </li>
-            </FadeUp>
+                <p className="mt-3 text-[1.0625rem] leading-[1.7] text-text-secondary">
+                  {entry.body}
+                </p>
+              </FadeUp>
+            </li>
           ))}
         </ol>
       </section>
 
       <section className="mt-22 md:mt-30">
         <FadeUp>
-          <h2 className="font-display text-3xl font-semibold text-text-primary md:text-4xl">
-            What I believe
+          <h2 className="font-display text-3xl font-semibold tracking-[-0.02em] text-text-primary md:text-4xl">
+            What carried over
           </h2>
         </FadeUp>
-        <div className="mt-10 grid gap-8 md:grid-cols-3">
-          {beliefPillars.map((pillar, i) => (
-            <FadeUp key={pillar.title} delay={0.06 * i}>
-              <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-sm">
-                {i === 0 ? (
-                  <Compass className="h-7 w-7 text-text-muted" strokeWidth={1.25} />
-                ) : i === 1 ? (
-                  <Brain className="h-7 w-7 text-text-muted" strokeWidth={1.25} />
-                ) : (
-                  <GraduationCap
-                    className="h-7 w-7 text-text-muted"
-                    strokeWidth={1.25}
-                  />
-                )}
-                <h3 className="mt-4 font-semibold text-text-primary">
-                  {pillar.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-                  {pillar.body}
-                </p>
-              </article>
-            </FadeUp>
+        <ul className="mt-10 space-y-4">
+          {whatCarriedOver.map((item, i) => (
+            <li key={item.title}>
+              <FadeUp delay={0.06 * i}>
+                <article className="rounded-2xl border border-border-default bg-white/[0.04] p-6 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-sm">
+                  <h3 className="font-sans font-semibold text-text-primary">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-[0.9375rem] leading-[1.6] text-text-secondary">
+                    {item.body}
+                  </p>
+                </article>
+              </FadeUp>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       <section className="mt-22 md:mt-30">
         <FadeUp>
-          <h2 className="font-display text-3xl font-semibold text-text-primary md:text-4xl">
-            Skills & stack
+          <h2 className="font-display text-3xl font-semibold tracking-[-0.02em] text-text-primary md:text-4xl">
+            Tools I have actually used
           </h2>
         </FadeUp>
         <div className="mt-8 space-y-6">
-          {skillCategories.map((cat, i) => (
-            <FadeUp key={cat.label} delay={0.04 * i}>
+          {skillGroups.map((group, i) => (
+            <FadeUp key={group.label} delay={0.04 * i}>
               <div>
-                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-text-muted">
-                  {cat.label}
+                <p className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-text-muted">
+                  {group.label}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {cat.items.map((item) => (
+                  {group.items.map((item) => (
                     <Tag key={item}>{item}</Tag>
                   ))}
                 </div>
@@ -148,15 +145,13 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="mt-22 rounded-2xl border border-white/10 bg-white/[0.04] p-8 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-sm md:mt-30 md:p-10">
+      <section className="mt-22 rounded-2xl border border-border-default bg-white/[0.04] p-8 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-sm md:mt-30 md:p-10">
         <FadeUp>
-          <h2 className="font-display text-2xl font-semibold text-text-primary">
+          <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-text-primary">
             Currently
           </h2>
-          <p className="mt-4 text-text-secondary">
-            Shipping portfolio v1, deepening LLM evaluation practices, and
-            reading widely across probabilistic ML. Update this block anytime —
-            it&apos;s the living heartbeat of the site.
+          <p className="mt-4 text-[1.0625rem] leading-[1.7] text-text-secondary">
+            {currentlyBody}
           </p>
         </FadeUp>
       </section>

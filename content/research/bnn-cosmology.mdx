@@ -1,21 +1,84 @@
 ---
 slug: bnn-cosmology
-title: "Uncertainty-aware emulation for cosmological forward models"
+title: "From ANN to BNN: Inferring Reionization Parameters using Uncertainty-aware Emulators of 21-cm Summaries"
 type: paper
-venue: Internal workshop / preprint (update when published)
-year: 2023
+venue: "JCAP 12 (2025) 055"
+year: 2025
 abstract: >-
-  Explores variational BNN formulations when emulating spectra or summary statistics for
-  inference pipelines. Discusses calibration checks alongside sampling efficiency trade-offs.
-pdf: https://example.com/paper.pdf
-code: https://github.com/
-publishedAt: "2023-08-15"
+  Neural emulators make Bayesian inference on the 21-cm signal from the Epoch of Reionization
+  tractable, but conventional ANN emulators return point predictions and cannot propagate their
+  own error into the inferred parameters. This paper develops Bayesian neural network emulators
+  for 21-cm summary statistics — the power spectrum and the bispectrum — which output a
+  posterior distribution over the predicted signal, and uses them in an inference pipeline on a
+  mock 1000-hour SKA-Low observation. The BNN emulators capture their prediction uncertainty and
+  give tighter constraints; they also outperform ANN emulators when the training dataset is
+  small.
+pdf: https://arxiv.org/pdf/2508.13261
+publishedAt: "2025-12-01"
 ---
 
-## Context
+## Citation
 
-Use this page for the narrative version of the work — figures as SVG exports, comparison tables, and honest limitations sections read better here than on a PDF alone.
+Yashrajsinh Mahida, **Sanjay Kumar Yadav**, Suman Majumdar, Leon Noble, Chandra Shekhar Murmu,
+Saswata Dasgupta, Sohini Dutta, Himanshu Tiwari, Abinash Kumar Shaw,
+*From ANN to BNN: Inferring Reionization Parameters using Uncertainty-aware Emulators of 21-cm
+Summaries*, **Journal of Cosmology and Astroparticle Physics, JCAP 12 (2025) 055**.
 
-## Reproducibility
+- DOI: [10.1088/1475-7516/2025/12/055](https://doi.org/10.1088/1475-7516/2025/12/055)
+- Preprint: [arXiv:2508.13261](https://arxiv.org/abs/2508.13261) (astro-ph.CO)
 
-Link conda/project locks and seeds when sharing publicly.
+```bibtex
+@article{Mahida2025_ANN_to_BNN,
+  author  = {Mahida, Yashrajsinh and Yadav, Sanjay Kumar and Majumdar, Suman and
+             Noble, Leon and Murmu, Chandra Shekhar and Dasgupta, Saswata and
+             Dutta, Sohini and Tiwari, Himanshu and Shaw, Abinash Kumar},
+  title   = {From {ANN} to {BNN}: Inferring Reionization Parameters using
+             Uncertainty-aware Emulators of 21-cm Summaries},
+  journal = {JCAP},
+  volume  = {12},
+  year    = {2025},
+  pages   = {055},
+  doi     = {10.1088/1475-7516/2025/12/055},
+  eprint  = {2508.13261},
+  archivePrefix = {arXiv},
+  primaryClass  = {astro-ph.CO}
+}
+```
+
+## My contribution
+
+I am the **second author of nine**. My own work in this line of research is the **21-cm power
+spectrum** emulator — the same emulator and inference pipeline I built for my
+[MSc thesis](/research/msc-thesis) and presented as **first author** on a
+[conference poster](/research/iitm-poster-2024) at IIT Madras in December 2024. The bispectrum
+emulator in the paper is collaborators' work; I do not claim it.
+
+The engineering side of the power-spectrum emulator — the Pyro/PyTorch model, the NUTS sampling
+over network weights, the likelihood that folds emulator uncertainty into the covariance, and
+the MCMC pipeline — is written up as a
+[project case study](/projects/bayesian-neural-network).
+
+## Why this matters outside cosmology
+
+The paper is about the early Universe, but the problem it solves is a general one in applied
+machine learning: **a fast model standing in for an expensive one is only safe if it can tell
+you when it is out of its depth.**
+
+A deterministic network gives one number and no indication of confidence. Downstream, that
+number is consumed as though it were exact, and every uncertainty the model itself introduced
+disappears from the final answer. Replacing the point estimate with a distribution — and, just
+as importantly, making the downstream consumer actually use that distribution — is what turns a
+surrogate into something you can put in a decision loop.
+
+The paper's other finding is the one I find most transferable: with plenty of training data both
+approaches look fine, and the difference only shows up when training data is scarce. That is
+where the deterministic model becomes confidently wrong while the Bayesian one widens its error
+bars. Scarce, expensive training data is the normal condition in most real problems, not the
+exception.
+
+## Method note
+
+The Bayesian neural network here samples the posterior over network weights with **NUTS/HMC**
+rather than fitting a variational approximation. That is a deliberate and more expensive choice:
+when the entire claim of the paper is that the emulator's uncertainty is trustworthy enough to
+enter a likelihood, approximating that uncertainty would undercut the claim.

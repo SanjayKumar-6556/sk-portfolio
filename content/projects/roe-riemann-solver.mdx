@@ -1,0 +1,108 @@
+---
+slug: roe-riemann-solver
+title: Roe/Riemann solver for compressible flow
+summary: A finite-volume fluid solver written from scratch in NumPy — Roe's approximate Riemann solver with a superbee limiter, validated on shock tubes, then applied to a supernova blast wave running into its own progenitor's wind with radiative cooling.
+category: research
+tags:
+  - Numerical methods
+  - Computational physics
+  - NumPy
+  - Simulation
+year: 2023
+role: MSc computational astrophysics coursework, IIT Indore
+stack:
+  - Python
+  - NumPy
+  - SciPy
+  - Matplotlib
+status: archived
+featured: false
+hero:
+  src: /projects/hero-placeholder.svg
+  alt: Abstract graphic suggesting a shock front propagating through a grid
+publishedAt: "2026-08-11"
+---
+
+## In one line
+
+No library does the physics here. The numerics — the Riemann solve, the flux limiter, the
+curvilinear geometry, the positivity fallback — are written out by hand, validated against a
+benchmark with a known answer, and then pointed at a problem where the answer is not known in
+advance.
+
+**Skills demonstrated:** numerical methods from first principles, stability and positivity
+handling, validating a solver before trusting it, translating published physics into working
+code.
+
+## Context
+
+MSc computational astrophysics coursework at IIT Indore. I am labelling it as coursework
+deliberately — it is not production software and it was not built for anyone else's use. It is
+here because it is the clearest evidence I have that I can implement numerics rather than call
+them.
+
+## The problem
+
+The Euler equations describe an inviscid compressible gas. In one dimension they are a
+hyperbolic system of conservation laws, and they have an inconvenient property: even perfectly
+smooth initial conditions develop discontinuities — shocks and contact surfaces. So they are
+solved in finite-volume form, updating cell averages from fluxes evaluated at cell interfaces,
+and at every interface you face a Riemann problem: two constant states separated by a jump.
+
+Solving that exactly at every interface, every timestep, is too expensive. That is what
+approximate Riemann solvers exist for.
+
+## Approach
+
+**Roe's solver.** The system is linearised about a specially constructed average state, and the
+jump at the interface is decomposed onto the eigenvectors of the flux Jacobian — the two
+acoustic families travelling at `u ± c` and the entropy wave travelling at `u`. Each wave is
+then upwinded according to its own direction of travel.
+
+**Superbee limiter.** First-order upwinding is stable but smears every feature you care about.
+A flux limiter blends toward a second-order flux where the solution is smooth and drops back to
+first order near discontinuities, which keeps shocks sharp without introducing oscillations
+around them.
+
+**Validation before application.** The solver is exercised on Sod-type shock-tube problems,
+where a diaphragm separates high- and low-pressure gas and the exact solution is known. That
+test hits all three wave families — rarefaction, contact, shock — at once, which is exactly why
+it is the standard benchmark and exactly why it is worth running before believing anything else
+the code says.
+
+**The actual application.** Fast supernova ejecta ploughing into the slower wind the star shed
+before exploding, in spherical coordinates, following the self-similar picture of Chevalier
+(1982). A forward shock runs into the wind, a reverse shock runs back into the ejecta, and a
+contact discontinuity sits between them. Because the shocked gas is dense, radiative cooling
+becomes dynamically important, and it is included as a source term using the tabulated cooling
+curve of Dalgarno & McCray (1972). With cooling switched on, the shocked shell collapses into a
+thin dense layer — a qualitatively different regime from the adiabatic case.
+
+## The part I am most pleased with
+
+The spherical solver carries volume-weighted state vectors and geometric source terms, and it
+has a **positivity limiter**: if a proposed update would drive density or pressure negative, the
+scheme falls back to first-order fluxes for that step rather than producing a number that is
+arithmetically fine and physically impossible.
+
+Knowing that a high-order scheme can step outside the physically admissible state — and building
+the fallback before it bites — is the difference between a solver that runs and a solver you can
+leave running. It is the same instinct as writing the invalid-state guard in a data pipeline,
+and it is why this project is on a portfolio that is otherwise about AI systems.
+
+## What I would do differently
+
+- **The validation notebook ships without its outputs.** The one notebook that demonstrates the
+  solver is correct renders as empty cells. Re-running and committing it costs minutes and it is
+  the first thing a reviewer would want to see.
+- **No convergence study.** Claiming second-order accuracy in smooth regions is worth a
+  measurement — refine the grid, plot the error, show the slope — and I asserted it from the
+  scheme rather than demonstrating it from the code.
+
+## References the implementation follows
+
+- P. L. Roe (1981), *Approximate Riemann solvers, parameter vectors, and difference schemes*,
+  J. Comput. Phys. 43, 357.
+- R. A. Chevalier (1982), *Self-similar solutions for the interaction of stellar ejecta with an
+  external medium*, ApJ 258, 790.
+- A. Dalgarno & R. A. McCray (1972), *Heating and ionization of HI regions*, ARA&A 10, 375.

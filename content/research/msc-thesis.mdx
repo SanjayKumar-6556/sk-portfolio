@@ -1,21 +1,68 @@
 ---
 slug: msc-thesis
-title: "Bayesian neural networks in cosmological inference"
+title: "Constraining Reionization Parameters through Bayesian Neural Network & Bayesian Inference"
 type: thesis
-venue: IIT Indore (Department of Physics)
-year: 2023
+venue: "IIT Indore — Department of Astronomy, Astrophysics & Space Engineering"
+year: 2024
 abstract: >-
-  Master's thesis investigating uncertainty-aware neural surrogates as bridges between
-  expensive cosmological simulators and rigorous sampling methods. Emphasis on calibrated
-  posteriors and failure modes under distribution shift.
-pdf: https://example.com/thesis.pdf
-publishedAt: "2023-06-01"
+  M.Sc. thesis on neural-network emulators for the 21-cm power spectrum from the Epoch of
+  Reionization. It first improves an existing ANN emulator by training on a library covering
+  more of the model parameter space and by increasing the sampling density in the regions where
+  the emulator was most error-prone, then uses it to constrain reionization parameters with
+  Metropolis-Hastings MCMC. Because an ANN can only return a point estimate, its prediction
+  uncertainty cannot be propagated into the constrained parameters — so the thesis then builds a
+  Bayesian neural network emulator whose output is a distribution, and shows it stays robust
+  where the ANN does not, including when the training set is made significantly smaller.
+pdf: /research/msc-thesis-sanjay-kumar-yadav.pdf
+publishedAt: "2024-05-21"
 ---
 
-## Extended summary
+## Details
 
-Replace this section with exported figures, methodological contributions, and links to your committee-approved PDF. The index card above already surfaces venue and year for listings.
+- **Degree:** Master of Science, Indian Institute of Technology Indore
+- **Department:** Astronomy, Astrophysics & Space Engineering
+- **Supervisor:** Dr. Suman Majumdar, Associate Professor
+- **Work carried out:** June 2023 – May 2024
+- **Oral examination:** 24 April 2024 · **Thesis dated:** 21 May 2024
 
-## Artifacts
+The full thesis PDF is linked above.
 
-Add slides, repository links, or BibTeX blocks inline once public.
+## What the thesis argues
+
+The Epoch of Reionization is the least understood era in the Universe's history. Next-generation
+radio interferometers such as the SKA are expected to observe it through the redshifted 21-cm
+line of neutral hydrogen — and the hard part begins once the observation exists, because
+interpreting it means comparing against reionization models that are computationally expensive
+to run self-consistently.
+
+The thesis takes that problem in three steps:
+
+1. **Make the fast surrogate better where it is actually wrong.** An existing ANN emulator
+   (Tiwari et al.) is retrained on a signal library covering a larger portion of the parameter
+   space; then the regions of parameter space where the emulator produces erroneous statistics
+   are identified, and the training sample density in those regions is increased.
+2. **Use it for inference.** The improved emulator is placed inside a Metropolis-Hastings MCMC
+   framework to constrain the reionization parameters.
+3. **Fix the structural limitation.** An ANN emulator always returns a point estimate with no
+   uncertainty attached, so its own prediction error cannot be propagated self-consistently into
+   the constrained parameters. A Bayesian neural network emulator is built instead: its weights
+   and biases are distributions rather than point values, so its output is a distribution and
+   its prediction uncertainty is available to the inference pipeline. Tested across
+   progressively smaller training sets, the BNN emulator remains robust where the ANN degrades,
+   including under mock SKA-like observation scenarios.
+
+## Where this went next
+
+The power-spectrum emulator described here became my contribution to a peer-reviewed paper,
+[JCAP 12 (2025) 055](/research/bnn-cosmology), and was presented as a
+[first-author poster](/research/iitm-poster-2024) at IIT Madras in December 2024. The
+engineering write-up — architecture, likelihood construction, trade-offs, evaluation design and
+what I would change — is on the
+[project case study page](/projects/bayesian-neural-network).
+
+## What it demonstrates for engineering work
+
+Three habits from this thesis carry directly into applied machine learning: diagnosing *where in
+the input space* a model fails and fixing the data rather than the architecture; refusing to let
+a fast approximate model hide its own error from whatever consumes it; and testing a model under
+the condition that actually bites in practice — not enough training data.

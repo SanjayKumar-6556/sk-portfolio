@@ -1,78 +1,70 @@
 ---
 slug: intelligent-scrapers
-title: Intelligent scrapers
-summary: AI-assisted scraping for Maps and job boards with respectful rate limits, structured extraction, and monitoring.
+title: Job-board and industry-service scrapers
+summary: Data-collection services that gather public listings and industry-service information for internal use, with a Gemini-based extraction path for pages whose structure will not hold still.
 category: automation
 tags:
-  - Scraping
-  - Extraction
-  - Scheduling
-  - Data quality
-year: 2024
-role: Engineer
+  - Web scraping
+  - LLM extraction
+  - Gemini
+  - Data collection
+year: 2025
+role: AI engineer, Nestack Technologies
 stack:
-  - Python
-  - Playwright
-  - Pydantic
-  - Prometheus
+  - Web scraping
+  - Gemini API
+  - LLM-based extraction
 status: shipped
 featured: true
 hero:
   src: /projects/hero-placeholder.svg
-  alt: Abstract grid suggesting structured data extraction
-publishedAt: "2024-11-20"
-metrics:
-  - label: Parse regressions caught
-    value: CI schema tests
-  - label: Junk rows filtered
-    value: Heuristic + LLM hybrid
+  alt: Abstract grid suggesting structured records extracted from unstructured pages
+publishedAt: "2026-08-13"
 ---
 
-## Overview
+## In one line
 
-Pipelines collect targeted public data, normalize records, and emit validated rows for downstream analytics — without turning operators into DOM archaeologists.
+Two related collection systems: scrapers that pull public job-board listings, and scrapers that
+gather information about industry services — the second using Gemini to turn page content into
+structured records rather than depending on hand-written selectors.
 
-## The Problem
+**Skills demonstrated:** building data-acquisition services, structured extraction from
+unstructured web pages, applying an LLM where a parser is the wrong tool, feeding internal
+systems with collected data.
 
-Brittle selectors and silent layout drift meant dashboards lied quietly. Manual fixes did not scale across locales.
+## Context
 
-## Architecture
+Internal work at Nestack Technologies (AI engineer, March 2025 – present).
 
-Scheduler triggers bounded browser sessions; extraction combines structural cues with lightweight LLM repair for messy cells. Everything flows through Pydantic models with golden fixtures.
+The company needed public information it did not have in any system: job listings from boards,
+and information about services offered across an industry. Both are the same problem wearing
+different clothes — the data is public, it is spread across many sites, none of those sites
+agree on a format, and none of them are obliged to keep their markup stable.
 
-## Key Engineering Challenges
+## What I built
 
-### Politeness and stability
+- **Job-board scrapers** that collect listings from public boards.
+- **Gemini-based scrapers** that collect industry-service information, using the model to read
+  page content and return structured fields.
 
-Concurrency caps, backoff, and robots awareness kept us good netizens while preserving freshness SLAs.
+## Why an LLM belongs in one of these and not necessarily the other
 
-### Schema drift
+A conventional scraper encodes the page's structure into the code: find this container, take
+that attribute. That is fast, cheap and exact — and it is also the thing that breaks silently
+the day a site is redesigned, which for a long tail of small, heterogeneous sites is
+continuously.
 
-Weekly probes compared checksums of canonical selectors; failures opened tickets with captured HTML snippets.
+Using a model for extraction moves the brittleness. Instead of encoding one site's layout, you
+describe the fields you want and let the model find them, which is what makes a long tail of
+differently-shaped sources tractable at all. The costs are real and worth stating plainly: every
+page costs an API call, extraction is no longer deterministic, and "the model returned something
+plausible" is not the same as "the model returned something correct". That is why the two
+systems are not built identically — a well-structured board with a stable layout does not need a
+model, and paying for one there would be waste.
 
-### Cost-aware LLM usage
+## What is not on this page
 
-LLM passes ran only when heuristic parsers flagged ambiguity.
-
-## Workflows / Pipelines
-
-1. Job enqueue with source + locale parameters.
-2. Fetch + extract + validate.
-3. Dead-letter quarantine for anomalies.
-4. Metrics exported per source.
-
-## Stack & Infrastructure
-
-Python workers, object storage for raw captures, Prometheus alerts on error budgets.
-
-## Results & Metrics
-
-Analysts trusted exports enough to automate weekly reports instead of spot checks.
-
-## What I'd Do Differently
-
-Invest sooner in **replay sandbox** fixtures mirroring production DOM variance.
-
-## Links
-
-Add case study artifacts when cleared for sharing.
+This is internal company work. The code is not public. I have left out the specific sources, the
+downstream systems the data feeds, volumes, and any internal figures. The description above is
+the shape of the problem and my role in it — happy to go deeper in conversation within what I am
+permitted to share.

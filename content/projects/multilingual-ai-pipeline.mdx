@@ -1,73 +1,129 @@
 ---
 slug: multilingual-ai-pipeline
-title: Multilingual AI pipeline
-summary: Orchestrated translation + validation pipeline for shipping the same AI features across locales without quality cliffs.
+title: Multilingual video dubbing pipeline
+summary: Takes an English-narrated video and returns one file carrying several selectable dubbed audio tracks — transcribe, segment, translate, synthesise, mux — built to survive interruption without paying twice for the same API call.
 category: llm-agents
 tags:
-  - i18n
-  - LLM QA
-  - Pipelines
-  - Evaluation
-year: 2025
-role: Engineer
+  - Speech-to-text
+  - LLM translation
+  - Text-to-speech
+  - Media pipelines
+year: 2024
+role: AI/ML developer (intern), Wow Labz
 stack:
   - Python
-  - Translation APIs
-  - Custom eval harness
-  - JSON Schema
+  - Whisper
+  - GPT-4o
+  - Google Cloud Text-to-Speech
+  - spaCy
+  - FFmpeg
+  - Streamlit
 status: in-progress
-featured: false
+featured: true
 hero:
   src: /projects/hero-placeholder.svg
-  alt: Abstract globe-like graphic suggesting multilingual flows
-publishedAt: "2025-05-01"
+  alt: Abstract graphic suggesting parallel language tracks flowing through a pipeline
+publishedAt: "2026-08-15"
+metrics:
+  - label: Output
+    value: One MP4, multi-track audio
+  - label: Language tracks
+    value: English → HI · TE · MR · BN
+  - label: Interrupted runs
+    value: Resume from checkpoint
 ---
 
-## Overview
+## In one line
 
-End-to-end workflow that generates localized prompt packs, validates them with bilingual reviewers when needed, and blocks releases when regression tests fail.
+An English-narrated video goes in; a single MP4 comes out with the original audio plus a
+synthesised dub in each requested language, selectable in any normal player.
 
-## The Problem
+**Skills demonstrated:** multi-stage media pipeline design, speech and LLM API orchestration,
+checkpointing and resumability, cost-aware batching, concurrency, packaging for delivery.
 
-Translating prompts verbatim broke tone and safety constraints; teams lacked a single pipeline tying linguistic QA to deployment gates.
+## Context
+
+Built during my AI/ML internship at Wow Labz (May–November 2024). The brief was localisation of
+narrated video: the same content had to reach audiences in several Indian languages without
+re-recording it each time.
+
+The constraints that shaped every design decision were cost and failure. Cloud transcription,
+translation and speech synthesis are billed per unit of text or audio, and a long video is a
+long sequence of billable calls. A naive script that crashes on stage five and restarts from
+stage one pays for stages one through four a second time.
+
+## My role
+
+I designed and built the pipeline: the stage decomposition, the resumable runner, the chunking
+strategy, the muxing, and the Streamlit interface over it. A frontend for end users was never
+built — the deliverable was the backend pipeline and an operator-facing UI.
 
 ## Architecture
 
-Source prompts live in git; CI expands locale matrices, runs automated semantic checks, and attaches reviewer approvals per locale tier.
+```text
+ video ──► extract audio ──► transcribe ──► sentence split ──► chunk
+                              (Whisper)       (spaCy)      (≤4900 bytes)
+                                                                │
+                        ┌───────────────────────────────────────┤ per language
+                        ▼                                       ▼
+                  translate (GPT-4o,                      synthesise speech
+                  gender-aware prompt)                    (Google Cloud TTS)
+                        └───────────────────────────────────────┘
+                                                                │
+                                                                ▼
+                                          mux all tracks into one MP4 (ffmpeg)
+                                          + optional 360p/720p transcode, DASH/HLS
+```
 
-## Key Engineering Challenges
+**Sentence-aware chunking.** Text is split on sentence boundaries with a per-language spaCy
+sentencizer, then packed into chunks of at most 4,900 bytes — just under the Google TTS
+per-request limit. Splitting on bytes alone would cut mid-sentence and produce translations that
+drift; splitting on sentences alone would overflow the request limit. The packer does both.
 
-### Safety parity
+**Resumable execution.** The tracked variant of the pipeline persists each stage's artefacts to
+disk — chunked text, then audio byte chunks — keyed so that a rerun skips anything already
+completed. An interrupted run resumes instead of re-translating and re-synthesising work that
+was already paid for. Each stage fans out across languages through a thread pool.
 
-Different languages triggered different refusal patterns; golden transcripts per locale caught drift.
+**Rhythm preservation.** A pause-detection step finds silences in the source audio and emits
+SSML break tags into the synthesis input, so the dubbed speech keeps something of the original
+speaker's pacing instead of running as an unbroken block.
 
-### Evaluation debt
+**Delivery.** The muxing step maps the original English track plus every synthesised track into
+one container with per-track titles. A transcoding step can additionally emit multiple
+resolutions and package for adaptive streaming.
 
-Lightweight LLM judges supplemented human spot checks with explicit scorecards.
+## Trade-offs
 
-### Operational overhead
+- **Whisper-small, not large.** The small model was chosen for turnaround; the model name is a
+  single configuration value, so upgrading it is a config change rather than a rewrite. Accuracy
+  was traded for iteration speed at a point where the pipeline shape was still moving.
+- **LLM translation rather than a translation API.** A plain translation endpoint is cheaper and
+  faster, and the codebase keeps one as an alternate backend. GPT-4o was used for the main path
+  because the prompt can carry instructions a translation endpoint cannot — notably grammatical
+  gender agreement with the chosen voice, which the Indian languages in scope need and a generic
+  translation call gets wrong.
+- **Checkpoints on disk, not a queue or database.** For a pipeline that runs per video on one
+  machine, files on disk gave resumability at almost no operational cost. It does not generalise
+  to a distributed fleet, and that limit was accepted deliberately.
 
-Automerge rules balanced velocity vs scrutiny based on risk classes.
+## Honest limitations
 
-## Workflows / Pipelines
+Documented in the repository rather than glossed over: translated speech drifts in length from
+the original, so SSML pause insertion mitigates but does not solve lip-sync; cloud TTS and
+translation are billed per character; adaptive-streaming packaging depends on an external
+packager binary.
 
-1. Author updates canonical prompt JSON.
-2. CI generates translations + schema validates structure.
-3. Eval harness runs scenario suites per locale.
-4. Approved bundles publish to edge config.
+## What I would do differently
 
-## Stack & Infrastructure
+- **Ship a demo artefact with the pipeline.** There is no sample video, no side-by-side audio
+  clip, nothing a reviewer can listen to. For a system whose entire output is perceptual, that
+  is the single biggest gap, and it would have cost an afternoon.
+- **Make quality measurable.** The pipeline has no automated check on translation or synthesis
+  quality — no back-translation comparison, no duration-drift metric per chunk. Those are cheap
+  signals and they would have caught problems that only surfaced on listening.
 
-Python services, translation vendors via adapters, artifact registry for frozen prompt bundles.
+## Availability
 
-## Results & Metrics
-
-Locale-specific incidents dropped once releases gated on automated scenarios — insert your metrics.
-
-## What I'd Do Differently
-
-Centralize **style guides** as machine-readable constraints sooner.
-
-## Links
-
-Add public write-up when available.
+This was internship work. The code is not public, and nothing on this page describes client
+data or client identities.

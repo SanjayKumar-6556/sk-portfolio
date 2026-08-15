@@ -1,0 +1,73 @@
+---
+slug: template-automation
+title: Template generation and bulk-mail automation
+summary: An internal app that generates outreach templates and pushes them straight into the spreadsheets the bulk-mail tool reads from — removing a copy-paste step the team was doing by hand for every campaign.
+category: automation
+tags:
+  - Internal tooling
+  - Workflow automation
+  - Next.js
+  - FastAPI
+year: 2025
+role: AI engineer, Nestack Technologies
+stack:
+  - Next.js
+  - FastAPI
+  - Python
+  - Google Sheets
+status: shipped
+featured: true
+hero:
+  src: /projects/hero-placeholder.svg
+  alt: Abstract graphic suggesting a generated document flowing into a spreadsheet
+publishedAt: "2026-08-14"
+---
+
+## In one line
+
+The team's bulk-mail tool took its content from Google Sheets, and someone had to produce each
+template and paste it into the right sheet by hand. I built the app that generates the templates
+and the automation that puts them where the mail tool expects them, so the whole path runs
+end to end.
+
+**Skills demonstrated:** internal tool design, full-stack delivery (Next.js frontend, FastAPI
+backend), third-party workflow integration, removing manual steps from a recurring process.
+
+## Context
+
+Internal work at Nestack Technologies, where I have been an AI engineer since March 2025.
+
+Campaign sending ran through an existing bulk-mail tool that reads its content out of Google
+Sheets. That gave the team a workflow with a human bottleneck in the middle of it: write the
+template somewhere, then copy it into the correct sheet, in the correct shape, for every
+campaign. It is the kind of step that is individually trivial and collectively expensive — it
+scales linearly with campaign count, it is easy to get subtly wrong, and it cannot run
+unattended.
+
+## What I built
+
+- A **template-generation application** with a Next.js frontend and a FastAPI backend, so
+  producing a template is a first-class operation with a UI rather than a document someone edits
+  by hand.
+- **Automation of the sheet-insertion step**, so a generated template lands in the spreadsheet
+  the bulk-mail tool reads from, in the structure that tool expects — closing the loop between
+  generation and sending.
+
+## Why it was built this way
+
+The constraint that mattered most was that the bulk-mail tool was not mine to change. It reads
+from Google Sheets and that was fixed. So the design question was not "what is the ideal campaign
+system" but "where can automation be inserted without asking anyone to change the tool they
+already rely on". Building around the existing sheet contract meant the team's sending workflow
+did not have to be renegotiated in order to get the manual step removed.
+
+Splitting the app into a Next.js frontend over a FastAPI backend kept the generation logic
+callable independently of the UI, which is what made automating the insertion path possible
+rather than bolting a script onto a form.
+
+## What is not on this page
+
+This is internal company work. The code is not public, and I have deliberately left out product
+names, campaign content, customer identities, volumes and any internal metrics. What is
+described here is the shape of the problem and my own role in it. If a specific detail matters
+for an interview, ask me directly and I will share what I am permitted to share.

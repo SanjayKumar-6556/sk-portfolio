@@ -1,0 +1,52 @@
+---
+slug: iitm-poster-2024
+title: "Constraining Reionization Parameters from 21-cm Power Spectrum through BNN-based Emulator using Bayesian Inference"
+type: poster
+venue: "21-cm Cosmology Workshop, IIT Madras"
+year: 2024
+abstract: >-
+  First-author poster on the Bayesian-neural-network emulator for the 21-cm power spectrum and
+  its use inside a Metropolis-Hastings MCMC inference pipeline. ANNs learn weights as fixed
+  point values and so predict without uncertainty; BNNs learn them as posterior distributions
+  and so predict distributions. The poster shows that with large training sets both emulators
+  perform comparably, but as the training set shrinks the ANN becomes biased toward its training
+  data while the BNN stays accurate within a widening uncertainty band — and that folding that
+  uncertainty into the inference gives better parameter constraints.
+pdf: /research/iitm-21cm-workshop-poster-2024.pdf
+publishedAt: "2024-12-06"
+---
+
+## Authors
+
+**Sanjay Kumar Yadav** (presenting author), Yashrajsinh Mahida, Leon Noble, Suman Majumdar —
+Department of Astronomy, Astrophysics & Space Engineering, Indian Institute of Technology
+Indore.
+
+## Why this poster is on the site
+
+It is the clean statement of which part of the [published paper](/research/bnn-cosmology) is
+mine. The paper covers both the power spectrum and the bispectrum and lists nine authors; this
+poster covers the 21-cm power-spectrum emulator specifically, and I am its first author.
+
+## The argument in four steps
+
+1. **Why emulators at all.** Interpreting a redshifted 21-cm observation means running
+   reionization models many times over. Simulations are too expensive to sit inside a sampler;
+   a neural emulator is not.
+2. **Why ANNs are not enough.** An ANN learns its weights as fixed point values, so it predicts
+   a single value with no uncertainty attached — which limits how far its output can be trusted
+   in a parameter-inference pipeline.
+3. **What a BNN changes.** A BNN learns weights and biases as posterior distributions, so each
+   prediction is itself a distribution. That gives uncertainty quantification for free, and the
+   uncertainty can then be carried into the inference.
+4. **Where the difference actually shows up.** With a large training set both emulators behave
+   similarly. As the training set shrinks, the ANN becomes biased toward its training data and
+   predicts incorrectly; the BNN stays accurate within its uncertainty range, with the
+   uncertainty growing as the data thins.
+
+The conclusion the poster ends on: BNN-based emulators give better parameter constraints than
+ANN-based ones precisely because the inference pipeline consumes their uncertainty rather than
+ignoring it.
+
+Full technical write-up: [Uncertainty-aware neural emulators for 21-cm
+cosmology](/projects/bayesian-neural-network).

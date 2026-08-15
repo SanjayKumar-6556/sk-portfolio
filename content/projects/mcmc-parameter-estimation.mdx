@@ -1,0 +1,96 @@
+---
+slug: mcmc-parameter-estimation
+title: Cosmological parameter estimation with MCMC
+summary: Metropolis–Hastings written by hand — no emcee, no PyMC — inferring the Hubble constant and matter density from Type Ia supernova data using the full measurement covariance, with three independent convergence checks.
+category: research
+tags:
+  - Bayesian inference
+  - MCMC
+  - Convergence diagnostics
+  - NumPy
+year: 2023
+role: MSc computational astrophysics project, IIT Indore
+stack:
+  - Python
+  - NumPy
+  - SciPy
+  - Matplotlib
+status: archived
+featured: false
+hero:
+  src: /projects/hero-placeholder.svg
+  alt: Abstract graphic suggesting sampled chains converging on a posterior
+links:
+  github: https://github.com/SanjayKumar-6556/Markov-Chain-Monte-Carlo
+publishedAt: "2026-08-10"
+---
+
+## In one line
+
+Type Ia supernovae are standard candles: their distance modulus traces how the Universe has
+expanded. This project recovers the posterior on two cosmological parameters from that data with
+a sampler written from scratch, and then tries three separate ways to prove the sampler is
+telling the truth.
+
+**Skills demonstrated:** implementing MCMC from first principles, likelihood construction with a
+full covariance matrix, convergence diagnostics, cross-checking a result by an independent
+method.
+
+## Why it is worth reading
+
+This is a small project and it is on the site for one reason: it is the foundation under the
+[Bayesian emulator work](/projects/bayesian-neural-network). Anyone can import a sampler. Being
+able to write the sampler, choose the proposal, and then argue about whether the chains have
+actually converged is what makes the emulator project's claims about uncertainty something I can
+defend rather than repeat.
+
+## What it does
+
+The model predicts the distance modulus `mu(z)` as a function of the dimensionless Hubble
+constant `h` and the matter density parameter `Omega_m`. A Gaussian log-likelihood compares that
+prediction to observed distance moduli, and a random-walk Metropolis–Hastings sampler explores
+the two-parameter space.
+
+The likelihood uses the **full 31×31 measurement covariance matrix**, inverted once and applied
+as a quadratic form — not the diagonal approximation. Supernova measurements are correlated;
+throwing those correlations away makes the posterior look tighter than the data supports, which
+is precisely the failure mode this kind of analysis exists to avoid.
+
+## Convergence, three ways
+
+A single chain that looks converged proves nothing, so the project checks it from three
+directions:
+
+1. **Multiple chains from deliberately different starting points**, to show they land on the
+   same posterior rather than on wherever they started.
+2. **The Gelman–Rubin statistic**, comparing between-chain and within-chain variance across
+   those chains.
+3. **Importance sampling** as an independent estimator of the same posterior — a different
+   algorithm agreeing is stronger evidence than the same algorithm agreeing with itself.
+
+The acceptance ratio is analysed rather than assumed, and the notebooks include an animated
+demonstration of a chain converging, which is the clearest way I know to show a non-specialist
+what a sampler is actually doing.
+
+## An extension worth the detour
+
+A separate notebook tackles the **Eddington problem**: fitting a straight line when *both*
+variables carry measurement uncertainty. Ordinary least squares quietly assumes the independent
+variable is exact; when it is not, the fitted slope is biased. Handling it properly means writing
+a likelihood that accounts for uncertainty in both directions — a small problem that is much less
+straightforward than it first appears, and a good sanity check on whether you actually understand
+the model you are fitting.
+
+## What I would do differently
+
+- **Report effective sample size**, not just acceptance ratio and Gelman–Rubin. It is the number
+  that tells you how much independent information a chain of a given length really contains.
+- **Tune the proposal deliberately.** The step sizes were chosen by hand; an adaptive proposal
+  or a documented tuning pass would make the sampler's efficiency a measured property rather
+  than a setting.
+
+## Code
+
+Public repository: [SanjayKumar-6556/Markov-Chain-Monte-Carlo](https://github.com/SanjayKumar-6556/Markov-Chain-Monte-Carlo).
+The data files used by the notebooks are tracked in the repo, so the results are reproducible as
+checked in.

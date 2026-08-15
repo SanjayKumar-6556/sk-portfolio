@@ -1,0 +1,77 @@
+---
+slug: nestack-platform-work
+title: Campaign data platform and internal services
+summary: Campaign activity lived entirely inside a third-party CRM with nothing owned locally. I designed and built the databases behind it, the notification services the internal team runs on, and took ownership of a set of existing PHP applications.
+category: backend
+tags:
+  - Data modelling
+  - Internal platform
+  - Notifications
+  - Legacy ownership
+year: 2025
+role: AI engineer, Nestack Technologies
+stack:
+  - Databases
+  - Backend services
+  - PHP (inherited applications)
+status: shipped
+featured: false
+hero:
+  src: /projects/hero-placeholder.svg
+  alt: Abstract graphic suggesting records and notifications moving between internal services
+publishedAt: "2026-08-12"
+---
+
+## In one line
+
+The company ran campaigns out of a third-party CRM and kept no campaign data of its own. I built
+the databases that changed that, plus the notification services the internal team uses, and took
+over a set of existing PHP applications that had lost their owner.
+
+**Skills demonstrated:** data modelling from scratch, backend service delivery, taking ownership
+of inherited code, working inside constraints set by third-party tools.
+
+## Context
+
+Internal work at Nestack Technologies (AI engineer, March 2025 – present).
+
+When a business runs entirely on a third-party CRM, the data is not really theirs. It is
+queryable only through someone else's interface, joinable only in the ways that interface
+allows, and it leaves with the vendor. There was no local database for campaigns at all — which
+means no history you control, no analysis that the CRM's screens do not already offer, and
+nothing for internal tools to build on.
+
+## What I built
+
+**Campaign databases.** I designed and built the databases that give campaign activity a home
+inside the company rather than only inside the CRM. This is the foundation piece: nothing else
+on this page — notifications, internal tooling, reporting — is possible while the only copy of
+the data lives behind a vendor's API.
+
+**Notification services.** Services that tell the internal team when something has happened,
+rather than requiring someone to notice it. Internal notification plumbing is unglamorous and it
+is exactly the difference between a system people trust and a system people re-check by hand.
+
+**Inherited PHP applications.** I took over a set of existing PHP applications and rebuilt a
+number of their features. Inheriting an application someone else wrote, and shipping changes to
+it without a rewrite, is a different skill from starting clean: you are reading intent out of
+code, keeping behaviour that people depend on, and improving the parts that are actually
+costing something.
+
+## Also on this platform
+
+Two further pieces of work at Nestack that belong to the same internal environment:
+
+- **A demo automation pipeline** — automating the production of product demos rather than
+  assembling each one by hand.
+- **A neural pipeline that classifies emails by sentiment**, giving the team a signal on
+  incoming mail that previously required someone to read it.
+
+I have kept both short here on purpose: they are internal, and I would rather describe them
+accurately in conversation than pad this page with detail I cannot substantiate publicly.
+
+## What is not on this page
+
+This is internal company work. There is no public code, and I have deliberately omitted product
+names, schema details, vendor arrangements, volumes and internal metrics. What is described is
+the problem, the decisions, and my own role — the parts that are mine to talk about.

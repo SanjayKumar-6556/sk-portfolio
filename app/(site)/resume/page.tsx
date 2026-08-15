@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -20,6 +22,19 @@ export const metadata = docMetadata({
   path: "/resume",
 });
 
+/**
+ * Whether the PDF is actually there, resolved once at build time.
+ *
+ * The page used to render a "Download PDF" button unconditionally, plus a note
+ * addressed to the site's owner telling him where to put the file. public/resume/
+ * held only a .gitkeep, so visitors got a prominent button that 404s and a note
+ * that was never meant for them. Drop the PDF in and both the button and the note
+ * appear on their own.
+ */
+const resumePdfExists = fs.existsSync(
+  path.join(/* turbopackIgnore: true */ process.cwd(), "public", siteConfig.resumePdfPath),
+);
+
 export default function ResumePage() {
   return (
     <div className="mx-auto max-w-3xl px-6 pb-24 pt-8 print:max-w-none">
@@ -31,20 +46,18 @@ export default function ResumePage() {
         title="Resume"
       />
       <div className="print:hidden mt-8 flex flex-col gap-4 sm:flex-row sm:gap-6">
-        <Button href={siteConfig.resumePdfPath} variant="primary">
-          Download PDF
-        </Button>
-        <Button href={siteConfig.social.linkedin} variant="secondary">
+        {resumePdfExists && (
+          <Button href={siteConfig.resumePdfPath} variant="primary">
+            Download PDF
+          </Button>
+        )}
+        <Button
+          href={siteConfig.social.linkedin}
+          variant={resumePdfExists ? "secondary" : "primary"}
+        >
           View on LinkedIn
         </Button>
       </div>
-      <p className="print:hidden mt-4 text-sm text-text-muted">
-        Place your file at{" "}
-        <code className="rounded bg-bg-surface px-1.5 py-0.5 font-mono text-xs">
-          public/resume/sanjay-yadav-resume.pdf
-        </code>{" "}
-        before linking it in production.
-      </p>
 
       <div className="resume-print mt-14 space-y-12 text-text-secondary print:text-black">
         <section>

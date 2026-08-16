@@ -184,7 +184,7 @@ power spectrum is relatively insensitive to it over much of the range.
 <Figure
   src="/research/figures/fig-emulator-vs-training-size.webp"
   width={1400}
-  height={816}
+  height={826}
   alt="Six panels showing ANN and BNN power-spectrum predictions against the true spectrum for training sets of 7150, 3000, 1000, 500, 200 and 100 samples. The two agree closely in the large panels; in the smallest the ANN departs from the true spectrum while the BNN stays close to it with a visibly wider uncertainty band."
   caption="The robustness study, from 7,150 training samples down to 100. With plenty of data both emulators are fine. As the library shrinks the ANN drifts off the truth with no signal that anything is wrong, while the BNN stays close and widens its band — it reports that it knows less."
 />
@@ -192,7 +192,7 @@ power spectrum is relatively insensitive to it over much of the range.
 <Figure
   src="/research/figures/fig-constrained-parameters.webp"
   width={1400}
-  height={1135}
+  height={760}
   alt="Two corner plots side by side, showing one- and two-dimensional posterior distributions for the three reionization parameters, constrained through the ANN emulator on the left and the BNN emulator on the right, each from three MCMC chains."
   caption="What that buys at the end of the pipeline: posteriors on the three reionization parameters, inferred through each emulator, three chains apiece. The dotted lines are the true values the mock observation was generated from."
 />

@@ -13,7 +13,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/about",
     "/projects",
     "/research",
-    "/cosmic-notes",
     "/resume",
     "/contact",
   ].map((path) => ({

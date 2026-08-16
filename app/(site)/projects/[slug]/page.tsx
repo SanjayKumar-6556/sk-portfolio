@@ -1,9 +1,12 @@
-import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
+import { Aside } from "@/components/layout/shell";
 import { MdxBody } from "@/components/mdx/mdx-body";
-import { Tag } from "@/components/ui/tag";
+import { ProjectArtifacts } from "@/components/projects/project-artifacts";
+import { ProjectMetrics } from "@/components/projects/project-metrics";
+import { ProjectSpec } from "@/components/projects/project-spec";
+import { ListRow } from "@/components/ui/list-row";
+import { SectionHeading } from "@/components/ui/section-heading";
 import { projectCategoryLabels } from "@/lib/category-labels";
 import {
   getAdjacentProjects,
@@ -11,6 +14,7 @@ import {
   getProjectBySlug,
 } from "@/lib/content";
 import { docMetadata } from "@/lib/seo";
+import type { ProjectFrontmatter } from "@/types/content";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -29,6 +33,22 @@ export async function generateMetadata(props: Props) {
   });
 }
 
+/** Adjacent work, in the same row grammar as the index. */
+function AdjacentRow({ project }: { project: ProjectFrontmatter }) {
+  return (
+    <ListRow
+      href={`/projects/${project.slug}`}
+      eyebrow={projectCategoryLabels[project.category]}
+      title={project.title}
+      trailing={String(project.year)}
+    >
+      <p className="mt-2 line-clamp-2 text-sec text-text-secondary">
+        {project.summary}
+      </p>
+    </ListRow>
+  );
+}
+
 export default async function ProjectCaseStudyPage(props: Props) {
   const { slug } = await props.params;
   const doc = getProjectBySlug(slug);
@@ -38,130 +58,67 @@ export default async function ProjectCaseStudyPage(props: Props) {
   const { prev, next } = getAdjacentProjects(slug);
 
   return (
-    <article className="pb-24 pt-8">
-      <div className="mx-auto max-w-6xl px-6">
-        <PageHeader
-          crumbs={[
-            { label: "Home", href: "/" },
-            { label: "Projects", href: "/projects" },
-            { label: p.title },
-          ]}
-          title={p.title}
-          subtitle={
-            <>
-              {p.tags.map((t) => (
-                <Tag key={t}>{t}</Tag>
-              ))}
-            </>
-          }
-        />
-        <p className="mt-6 font-mono text-xs uppercase tracking-[0.18em] text-text-muted">
-          {p.year} · {p.role} · {projectCategoryLabels[p.category]} · {p.status}
-        </p>
+    <>
+      <PageHeader
+        crumbs={[
+          { label: "Home", href: "/" },
+          { label: "Projects", href: "/projects" },
+          { label: p.title },
+        ]}
+        title={p.title}
+        purpose={p.summary}
+      />
 
-        <div className="relative mt-10 aspect-video overflow-hidden rounded-2xl border border-white/12 glow-cyan">
-          <Image
-            src={p.hero.src}
-            alt={p.hero.alt}
-            fill
-            priority
-            unoptimized={p.hero.src.endsWith(".svg")}
-            className="object-cover"
-            sizes="(max-width:768px) 100vw, 1152px"
-          />
+      {/*
+        Below 1024 the rail does not exist, so the same facts run inline. This
+        is its own grid child rather than the body's first block: `lg:hidden`
+        removes it from the grid entirely at ≥1024, which a hidden first child
+        inside the body wrapper could not do without leaving its margin behind.
+      */}
+      <ProjectSpec project={p} layout="inline" className="mt-10 lg:hidden" />
+
+      {/*
+        Everything the reader scrolls through is ONE grid child, so the rail
+        beside it spans the whole case study instead of only the header's row.
+        No max-w / px / mx-auto here — the shell owns both.
+      */}
+      <div className="mt-10 [&>*:first-child]:mt-0">
+        {p.metrics && p.metrics.length > 0 ? (
+          <ProjectMetrics metrics={p.metrics} className="mt-10" />
+        ) : null}
+
+        <ProjectArtifacts slug={slug} className="mt-10" />
+
+        {/*
+          The inner first-child reset again: this div is not a grid item, but
+          the MDX h2 carries its own top margin and would double the gap.
+        */}
+        <div className="mt-16 [&>*:first-child]:mt-0">
+          <MdxBody source={body} />
         </div>
 
-        {p.metrics && p.metrics.length > 0 ? (
-          <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {p.metrics.map((m) => (
-              <li
-                key={m.label}
-                className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-sm"
-              >
-                <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-text-muted">
-                  {m.label}
-                </p>
-                <p className="mt-2 font-display text-xl text-accent-cyan">
-                  {m.value}
-                </p>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-
-        {(p.links?.github ?? p.links?.demo ?? p.links?.paper) ? (
-          <div className="mt-8 flex flex-wrap gap-4">
-            {p.links.github ? (
-              <Link
-                href={p.links.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-medium text-accent-cyan underline-offset-4 hover:underline"
-              >
-                GitHub
-              </Link>
-            ) : null}
-            {p.links.demo ? (
-              <Link
-                href={p.links.demo}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-medium text-accent-cyan underline-offset-4 hover:underline"
-              >
-                Demo
-              </Link>
-            ) : null}
-            {p.links.paper ? (
-              <Link
-                href={p.links.paper}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-medium text-accent-violet underline-offset-4 hover:underline"
-              >
-                Paper
-              </Link>
-            ) : null}
-          </div>
+        {prev || next ? (
+          <section className="mt-16 md:mt-24 lg:mt-32">
+            <SectionHeading href="/projects" linkLabel="All projects →">
+              More work
+            </SectionHeading>
+            <ul className="mt-10 border-t border-border-subtle transition-opacity hover:[&>li:not(:hover)]:opacity-55">
+              {prev ? <AdjacentRow project={prev} /> : null}
+              {next ? <AdjacentRow project={next} /> : null}
+            </ul>
+          </section>
         ) : null}
       </div>
 
-      <div className="mx-auto mt-14 max-w-[680px] px-6">
-        <MdxBody source={body} />
-      </div>
-
-      <nav
-        aria-label="Adjacent projects"
-        className="mx-auto mt-20 grid max-w-6xl gap-6 px-6 md:grid-cols-2"
-      >
-        {prev ? (
-          <Link
-            href={`/projects/${prev.slug}`}
-            className="group rounded-2xl border border-white/10 bg-white/[0.04] p-8 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-sm transition-colors hover:border-accent-cyan/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan"
-          >
-            <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-text-muted">
-              Previous
-            </p>
-            <p className="mt-2 font-display text-2xl text-text-primary group-hover:text-accent-cyan">
-              ← {prev.title}
-            </p>
-          </Link>
-        ) : (
-          <span />
-        )}
-        {next ? (
-          <Link
-            href={`/projects/${next.slug}`}
-            className="group rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-right shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-sm transition-colors hover:border-accent-cyan/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan md:col-start-2"
-          >
-            <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-text-muted">
-              Next
-            </p>
-            <p className="mt-2 font-display text-2xl text-text-primary group-hover:text-accent-cyan">
-              {next.title} →
-            </p>
-          </Link>
-        ) : null}
-      </nav>
-    </article>
+      {/*
+        `self-stretch` is load-bearing: .shell sets `align-items: start`, so an
+        aside is only as tall as its own content and the sticky inner div has
+        nowhere to travel. Stretching it to the row height — the height of the
+        whole case study — is what makes the spec panel follow the reader.
+      */}
+      <Aside className="mt-10 self-stretch">
+        <ProjectSpec project={p} />
+      </Aside>
+    </>
   );
 }

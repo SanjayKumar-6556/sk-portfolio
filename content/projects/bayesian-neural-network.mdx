@@ -36,18 +36,19 @@ metrics:
 ---
 
 {/*
-  ASSET NOTE (not rendered). Real, publication-grade figures for this page exist on disk:
-  - ANN vs BNN prediction with uncertainty band:
-    ~/Msc Project/master_thesis_sk/all_plots/predictions/ann_bnn_comparision/whole_dataset_size/
+  ASSET NOTE (not rendered). Four figures are now wired in below, all his own — see
+  public/research/figures/PROVENANCE.md for the source of each and for the one figure
+  that was extracted and then deleted because the thesis credits it elsewhere.
+
+  Still on disk, not yet used, if this page ever wants more:
   - Posterior contours, full grid {ann,bnn} x {200,500,1000,7150} training sizes:
     ~/Msc Project/master_thesis_sk/all_plots/constraints/
-  - Vector PDFs of the ANN/BNN contours for three fiducial cases:
-    ~/Downloads/Project_BNN_result/Pdf/
   - R_mfp degeneracy diagnostics:
     ~/Msc Project/master_thesis_sk/all_plots/R_parameter_degeneracy_reason/
-  - MCMC convergence animations:
+  - MCMC convergence animation:
     ~/Msc Project/master_thesis_sk/all_plots/presentation_material/MCMC.gif
-  Nothing here is invented; wire these in as real hero/figure assets when they are exported.
+  - Vector PDFs of the ANN/BNN contours for three fiducial cases:
+    ~/Downloads/Project_BNN_result/Pdf/
 */}
 
 ## In one line
@@ -100,19 +101,13 @@ Three things had to happen:
 
 ## Approach
 
-```text
-reionization parameters
-  (M_h,min, N_ion, R_mfp)
-          │
-          ▼
-   emulator (ANN or BNN)  ──► P(k) at 7 k-bins, z ≈ 7   [+ BNN: predictive sigma]
-          │
-          ▼
-   Gaussian likelihood: cov = sample variance + thermal noise (+ BNN model uncertainty)
-          │
-          ▼
-   Metropolis–Hastings MCMC, 4 parallel chains ──► posterior on the 3 parameters
-```
+<Figure
+  src="/research/figures/fig-inference-pipeline.webp"
+  width={1400}
+  height={665}
+  alt="Flow diagram. Forward path: reionization parameters feed a simulation and a BNN-based emulator, producing a power spectrum, which meets the observed power spectrum in a likelihood whose covariance is the sum of sample variance, thermal noise and prediction uncertainty, giving a posterior. Backward path: propose new parameters and repeat."
+  caption="The loop the whole project is built around. Parameters go in, the emulator stands in for the simulation, and the result meets a mock observation inside a likelihood — where the emulator's own prediction uncertainty enters the covariance alongside sample variance and instrument noise, rather than being reported next to the plot and forgotten."
+/>
 
 **Training library.** The emulator maps three reionization parameters — minimum host-halo mass
 `M_h,min` (10–800, in units of 10^8 solar masses), ionizing efficiency `N_ion` (10–200), and
@@ -177,6 +172,30 @@ well-constrained of the three parameters, and I produced separate diagnostics sh
 power spectrum is relatively insensitive to it over much of the range.
 
 ## Results
+
+<Figure
+  src="/research/figures/ann-vs-bnn-prediction.webp"
+  width={1400}
+  height={700}
+  alt="Two panels of the 21-cm power spectrum against wavenumber at neutral fraction 0.38. Left, the ANN prediction traces the true spectrum as a single line with no uncertainty. Right, the BNN prediction traces it with a shaded three-sigma band around it."
+  caption="The same prediction from both emulators. The ANN gives one number per k-bin and no way to say how much to trust it; the BNN gives a distribution, and that band is what the likelihood downstream is able to use."
+/>
+
+<Figure
+  src="/research/figures/fig-emulator-vs-training-size.webp"
+  width={1400}
+  height={816}
+  alt="Six panels showing ANN and BNN power-spectrum predictions against the true spectrum for training sets of 7150, 3000, 1000, 500, 200 and 100 samples. The two agree closely in the large panels; in the smallest the ANN departs from the true spectrum while the BNN stays close to it with a visibly wider uncertainty band."
+  caption="The robustness study, from 7,150 training samples down to 100. With plenty of data both emulators are fine. As the library shrinks the ANN drifts off the truth with no signal that anything is wrong, while the BNN stays close and widens its band — it reports that it knows less."
+/>
+
+<Figure
+  src="/research/figures/fig-constrained-parameters.webp"
+  width={1400}
+  height={1135}
+  alt="Two corner plots side by side, showing one- and two-dimensional posterior distributions for the three reionization parameters, constrained through the ANN emulator on the left and the BNN emulator on the right, each from three MCMC chains."
+  caption="What that buys at the end of the pipeline: posteriors on the three reionization parameters, inferred through each emulator, three chains apiece. The dotted lines are the true values the mock observation was generated from."
+/>
 
 - Two working emulators, ANN and BNN, for the 21-cm power spectrum at `z ≈ 7`.
 - An inference pipeline in which emulator uncertainty, sample variance and instrument noise are

@@ -1,0 +1,69 @@
+import Image from "next/image";
+import { cn } from "@/lib/utils";
+
+/**
+ * A scientific figure inside a case study.
+ *
+ * These are real plots from his thesis, his poster and his own code — see
+ * public/research/figures/PROVENANCE.md, which traces every one to its source
+ * and records the one figure that was deliberately excluded because his thesis
+ * credits it to somebody else. Nothing decorative goes through this component.
+ *
+ * WHY THE WHITE PLATE. The site is near-black; the figures are matplotlib
+ * output on white. Inverting or recolouring them would misrepresent published
+ * research, so they sit on a light plate instead — the way a paper reproduces a
+ * figure. That reads as "a real figure", where a recoloured one reads as a
+ * styling mistake.
+ *
+ * WHY THE FULL-SIZE LINK. Corner plots and multi-panel grids carry small axis
+ * labels that are unreadable in a 640px reading column, and shrinking them to
+ * fit is how a real result becomes wallpaper. The image is legible enough to
+ * show what happened; the link is there for anyone who wants to check it.
+ */
+export function Figure({
+  src,
+  alt,
+  caption,
+  width,
+  height,
+  className,
+}: {
+  src: string;
+  alt: string;
+  /** What the reader should take from it. Plain language, no invented numbers. */
+  caption: string;
+  width: number;
+  height: number;
+  className?: string;
+}) {
+  return (
+    <figure className={cn("mt-10", className)}>
+      <a
+        href={src}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group block rounded-lg border border-border-subtle bg-white p-3 transition-colors duration-200 hover:border-border-strong sm:p-4"
+      >
+        <Image
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          sizes="(max-width: 1023px) 100vw, 640px"
+          className="h-auto w-full"
+        />
+      </a>
+      <figcaption className="mt-3 text-meta text-text-muted">
+        {caption}{" "}
+        <a
+          href={src}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="whitespace-nowrap text-accent-cyan underline-offset-4 hover:underline"
+        >
+          Full size ↗
+        </a>
+      </figcaption>
+    </figure>
+  );
+}

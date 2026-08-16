@@ -1,6 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
+import { Aside } from "@/components/layout/shell";
 import { FadeUp } from "@/components/motion/fade-up";
+import { ResearchRow } from "@/components/research/research-row";
+import { SectionHeading } from "@/components/ui/section-heading";
 import { Tag } from "@/components/ui/tag";
 import { getAllResearch } from "@/lib/content";
 import { researchTypeLabels } from "@/lib/category-labels";
@@ -14,107 +18,101 @@ export const metadata = docMetadata({
   path: "/research",
 });
 
+/**
+ * The two document scans that are actually published in public/research/.
+ * Keyed by slug so nothing here can invent an artefact that does not exist —
+ * a record with no artefact simply gets no thumbnail. Intrinsic pixel sizes
+ * are the files' own, so the browser reserves the right box and nothing shifts.
+ *
+ * The same map is repeated in research/[slug]/page.tsx: a shared module would
+ * have to live in lib/, which is outside this page's remit.
+ */
+const artefacts: Record<
+  string,
+  { src: string; width: number; height: number; alt: string }
+> = {
+  "msc-thesis": {
+    src: "/research/msc-thesis-cover.webp",
+    width: 910,
+    height: 1287,
+    alt: "Title page of the M.Sc. thesis",
+  },
+  "iitm-poster-2024": {
+    src: "/research/iitm-poster-preview.webp",
+    width: 1656,
+    height: 2341,
+    alt: "The 21-cm Cosmology Workshop poster",
+  },
+};
+
 export default function ResearchPage() {
   const items = getAllResearch().sort(
     (a, b) =>
       new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
   );
 
+  const withArtefacts = items.filter((r) => artefacts[r.slug]);
+
   return (
-    <div className="mx-auto max-w-3xl px-6 pb-24 pt-8">
+    <>
       <PageHeader
-        crumbs={[
-          { label: "Home", href: "/" },
-          { label: "Research" },
-        ]}
+        crumbs={[{ label: "Home", href: "/" }, { label: "Research" }]}
         title="Research"
+        purpose="My foundation is in physics and probabilistic modeling — especially where rigorous inference meets messy data. That lens carries into how I design evaluations and communicate uncertainty in applied AI."
       />
-      <FadeUp>
-        <p className="mt-10 text-lg leading-relaxed text-text-secondary md:text-xl">
-          My foundation is in physics and probabilistic modeling — especially
-          where rigorous inference meets messy data. That lens carries into how
-          I design evaluations and communicate uncertainty in applied AI.
-        </p>
+
+      <FadeUp className="mt-10">
+        <ul className="border-t border-border-subtle hover:[&>li:not(:hover)]:opacity-55">
+          {items.map((r) => (
+            <ResearchRow key={r.slug} item={r} headingLevel="h2" />
+          ))}
+        </ul>
       </FadeUp>
 
-      <ul className="mt-16 flex flex-col gap-12">
-        {items.map((r, i) => (
-          <FadeUp key={r.slug} delay={0.05 * i}>
-            <li className="rounded-2xl border border-white/10 bg-white/[0.04] p-8 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-sm">
-              <Tag>{researchTypeLabels[r.type]}</Tag>
-              <h2 className="mt-4 font-display text-2xl font-medium text-text-primary md:text-3xl">
-                <Link
-                  href={`/research/${r.slug}`}
-                  className="hover:text-accent-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan rounded-sm"
-                >
-                  {r.title}
-                </Link>
-              </h2>
-              <p className="mt-2 font-mono text-xs text-text-muted">
-                {r.venue} · {r.year}
-              </p>
-              <p className="mt-4 text-text-secondary">{r.abstract}</p>
-              <div className="mt-6 flex flex-wrap gap-4 font-mono text-sm">
-                {r.pdf ? (
-                  <Link
-                    href={r.pdf}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-accent-cyan hover:underline"
-                  >
-                    PDF
+      {withArtefacts.length > 0 ? (
+        <Aside className="mt-10">
+          <p className="font-mono text-label uppercase text-text-muted">
+            Documents
+          </p>
+          <ul className="mt-4 space-y-6">
+            {withArtefacts.map((r) => {
+              const a = artefacts[r.slug];
+              return (
+                <li key={r.slug}>
+                  <Link href={`/research/${r.slug}`} className="group block">
+                    <Image
+                      src={a.src}
+                      alt={a.alt}
+                      width={a.width}
+                      height={a.height}
+                      sizes="190px"
+                      className="w-[190px] rounded-sm border border-border-subtle opacity-80 transition duration-200 group-hover:border-border-strong group-hover:opacity-100"
+                    />
+                    <p className="mt-2 font-mono text-label uppercase text-text-secondary transition-colors duration-200 group-hover:text-accent-cyan">
+                      {researchTypeLabels[r.type]}
+                      <span aria-hidden> · </span>
+                      {r.year}
+                    </p>
                   </Link>
-                ) : null}
-                {r.slides ? (
-                  <Link
-                    href={r.slides}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-accent-cyan hover:underline"
-                  >
-                    Slides
-                  </Link>
-                ) : null}
-                {r.code ? (
-                  <Link
-                    href={r.code}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-accent-violet hover:underline"
-                  >
-                    Code
-                  </Link>
-                ) : null}
-                {r.bibtex ? (
-                  <Link
-                    href={r.bibtex}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-text-muted hover:text-text-secondary hover:underline"
-                  >
-                    BibTeX
-                  </Link>
-                ) : null}
-              </div>
-            </li>
-          </FadeUp>
-        ))}
-      </ul>
+                </li>
+              );
+            })}
+          </ul>
+        </Aside>
+      ) : null}
 
-      <section className="mt-22 md:mt-30">
-        <FadeUp>
-          <h2 className="font-display text-2xl font-medium text-text-primary md:text-3xl">
-            Methods I use
-          </h2>
-        </FadeUp>
-        <div className="mt-8 flex flex-wrap gap-2">
-          {researchMethods.map((m, i) => (
-            <FadeUp key={m} delay={0.03 * i}>
-              <Tag>{m}</Tag>
-            </FadeUp>
-          ))}
-        </div>
-      </section>
-    </div>
+      <FadeUp className="mt-16 md:mt-24 lg:mt-32">
+        <section>
+          <SectionHeading>Methods I use</SectionHeading>
+          <ul className="mt-8 flex flex-wrap gap-2">
+            {researchMethods.map((m) => (
+              <li key={m}>
+                <Tag>{m}</Tag>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </FadeUp>
+    </>
   );
 }

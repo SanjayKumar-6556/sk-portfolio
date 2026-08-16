@@ -1,27 +1,29 @@
-import { Button } from "@/components/ui/button";
-import { CosmicNodeFallback } from "@/components/three/cosmic-node-fallback";
 import { FadeUp } from "@/components/motion/fade-up";
+import { Button } from "@/components/ui/button";
+import { SectionHeading } from "@/components/ui/section-heading";
 
+/**
+ * The CTA, restated once in flow at the end of a page — replacing the
+ * always-present floating "GET IN TOUCH" button, which was ignored precisely
+ * because it was always there.
+ *
+ * Shell-aligned and left-aligned like everything else: it used to be a centred
+ * `max-w-6xl` block with its own violet radial wash and a 240px repeat of the
+ * hero graphic, which put the last thing a visitor reads on a different rail
+ * from every line above it.
+ */
 export function CtaFooter() {
   return (
-    <section className="relative overflow-hidden border-t border-white/[0.06] py-22 md:py-36">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_115%,rgba(139,92,246,0.08),transparent_58%)]" />
-      <div className="relative mx-auto flex max-w-6xl flex-col items-center px-6 text-center">
-        <FadeUp className="size-[200px] opacity-90 md:size-[240px]">
-          <CosmicNodeFallback idPrefix="cta-graphic" className="size-full" />
-        </FadeUp>
-        <FadeUp delay={0.1}>
-          <h2 className="mt-10 font-display text-3xl font-semibold tracking-[-0.02em] text-text-primary md:text-5xl">
-            Let&apos;s build something intelligent.
-          </h2>
-          <p className="mx-auto mt-4 max-w-lg text-text-secondary md:text-lg">
-            Open to engineering roles, research collaborations, and consulting.
-          </p>
-          <Button href="/contact" className="mt-10">
-            Get in touch
-          </Button>
-        </FadeUp>
-      </div>
+    <section className="mt-16 border-t border-border-subtle pt-16 md:mt-24 lg:mt-32">
+      <FadeUp>
+        <SectionHeading>Let&apos;s build something intelligent.</SectionHeading>
+        <p className="mt-6 text-body text-text-secondary">
+          Open to engineering roles, research collaborations, and consulting.
+        </p>
+        <div className="mt-8 flex flex-wrap gap-4">
+          <Button href="/contact">Get in touch</Button>
+        </div>
+      </FadeUp>
     </section>
   );
 }

@@ -2,7 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
-import { Button } from "@/components/ui/button";
+import { Aside } from "@/components/layout/shell";
+import { SectionHeading } from "@/components/ui/section-heading";
 import {
   education,
   experience,
@@ -28,64 +29,116 @@ export const metadata = docMetadata({
  * The page used to render a "Download PDF" button unconditionally, plus a note
  * addressed to the site's owner telling him where to put the file. public/resume/
  * held only a .gitkeep, so visitors got a prominent button that 404s and a note
- * that was never meant for them. Drop the PDF in and both the button and the note
- * appear on their own.
+ * that was never meant for them. Drop the PDF in and the link appears on its own.
  */
 const resumePdfExists = fs.existsSync(
   path.join(/* turbopackIgnore: true */ process.cwd(), "public", siteConfig.resumePdfPath),
 );
 
-export default function ResumePage() {
+/** Anchor targets for the right-rail index. Order matches the document. */
+const sections = [
+  { id: "experience", label: "Experience" },
+  { id: "education", label: "Education" },
+  { id: "selected-projects", label: "Selected projects" },
+  { id: "research", label: "Research" },
+  { id: "talks", label: "Talks & workshops" },
+  { id: "skills", label: "Skills" },
+] as const;
+
+const actionPill =
+  "inline-flex min-h-11 items-center rounded-full border border-border-default px-5 font-mono text-label uppercase text-text-primary transition-colors duration-200 hover:border-border-strong hover:text-accent-cyan";
+
+/** A ruled list of one-line entries — the same row grammar the rest of the site uses. */
+function RuledList({ items }: { items: readonly string[] }) {
   return (
-    <div className="mx-auto max-w-3xl px-6 pb-24 pt-8 print:max-w-none">
-      <PageHeader
-        crumbs={[
-          { label: "Home", href: "/" },
-          { label: "Resume" },
-        ]}
-        title="Resume"
-      />
-      <div className="print:hidden mt-8 flex flex-col gap-4 sm:flex-row sm:gap-6">
-        {resumePdfExists && (
-          <Button href={siteConfig.resumePdfPath} variant="primary">
-            Download PDF
-          </Button>
-        )}
-        <Button
-          href={siteConfig.social.linkedin}
-          variant={resumePdfExists ? "secondary" : "primary"}
+    <ul className="mt-8 border-t border-border-subtle print:mt-4">
+      {items.map((item) => (
+        <li
+          key={item}
+          className="border-b border-border-subtle py-4 text-sec text-text-secondary print:break-inside-avoid print:py-1.5"
         >
-          View on LinkedIn
-        </Button>
+          {item}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const sectionSpacing = "mt-16 scroll-mt-24 md:mt-24 lg:mt-32 print:mt-8";
+
+export default function ResumePage() {
+  // The skills string is already `·`-separated by discipline in resume-data.ts;
+  // splitting on that separator turns one unreadable paragraph into six scannable
+  // rows without changing a character of the copy.
+  const skillGroups = resumeSkills.split(" · ");
+
+  return (
+    <>
+      <PageHeader
+        className="print:hidden"
+        crumbs={[{ label: "Home", href: "/" }, { label: "Resume" }]}
+        title="Resume"
+        purpose={resumeSummary}
+      />
+
+      {/* Print gets a proper document head instead of a breadcrumb: a printed
+          résumé must open with the name and how to reach him. */}
+      <div className="hidden print:block print:text-black">
+        <h1 className="text-h1">{siteConfig.professionalName}</h1>
+        <p className="mt-2 font-mono text-meta">
+          {siteConfig.email}
+          <span aria-hidden> · </span>
+          {siteConfig.social.linkedin}
+          <span aria-hidden> · </span>
+          {siteConfig.social.github}
+        </p>
+        <p className="mt-4 text-sec">{resumeSummary}</p>
       </div>
 
-      <div className="resume-print mt-14 space-y-12 text-text-secondary print:text-black">
-        <section>
-          <h2 className="border-b border-border-default pb-2 font-display text-xl text-text-primary print:border-black print:text-black">
-            Summary
-          </h2>
-          <p className="mt-4 leading-relaxed">{resumeSummary}</p>
-        </section>
+      <div className="mt-8 flex flex-wrap gap-3 print:hidden">
+        {resumePdfExists ? (
+          <a href={siteConfig.resumePdfPath} className={actionPill}>
+            Download PDF ↗
+          </a>
+        ) : null}
+        <a
+          href={siteConfig.social.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={actionPill}
+        >
+          View on LinkedIn ↗
+        </a>
+      </div>
 
-        <section>
-          <h2 className="border-b border-border-default pb-2 font-display text-xl text-text-primary print:border-black print:text-black">
-            Experience
-          </h2>
-          <ul className="mt-6 space-y-8">
+      {/*
+        One wrapper so print can be scoped in a single place:
+          text-black       — the print stylesheet whitens the page, and every token
+                             colour would otherwise stay light grey on paper.
+          border-black/15  — the hairlines are white-on-dark rgba and vanish on paper.
+          [&_h2+a]:hidden  — SectionHeading's optional "All projects →" link is the
+                             `a` directly after its `h2`. A navigation link means
+                             nothing in a printed résumé.
+      */}
+      <div className="mt-14 print:mt-8 print:text-black print:[&_*]:border-black/15 print:[&_*]:text-black print:[&_h2+a]:hidden">
+        <section id="experience" className="scroll-mt-24">
+          <SectionHeading>Experience</SectionHeading>
+          <ul className="mt-10 border-t border-border-subtle print:mt-4">
             {experience.map((job) => (
-              <li key={job.org}>
-                <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
-                  <h3 className="font-semibold text-text-primary print:text-black">
-                    {job.role}
-                  </h3>
-                  <span className="font-mono text-xs text-text-muted print:text-black">
+              <li
+                key={job.org}
+                className="border-b border-border-subtle py-7 print:break-inside-avoid print:py-4"
+              >
+                <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+                  <h3 className="text-h3 text-text-primary">{job.role}</h3>
+                  <span className="shrink-0 font-mono text-label text-text-muted">
                     {job.period}
                   </span>
                 </div>
-                <p className="text-sm text-accent-violet print:text-black">
+                <p className="mt-2 font-mono text-label uppercase text-accent-cyan">
                   {job.org}
                 </p>
-                <ul className="mt-3 list-disc space-y-1 pl-5">
+                <ul className="mt-4 list-disc space-y-2 pl-5 text-sec text-text-secondary">
                   {job.bullets.map((b) => (
                     <li key={b}>{b}</li>
                   ))}
@@ -95,74 +148,80 @@ export default function ResumePage() {
           </ul>
         </section>
 
-        <section>
-          <h2 className="border-b border-border-default pb-2 font-display text-xl text-text-primary print:border-black print:text-black">
-            Education
-          </h2>
-          <ul className="mt-6 space-y-6">
+        <section id="education" className={sectionSpacing}>
+          <SectionHeading>Education</SectionHeading>
+          <ul className="mt-10 border-t border-border-subtle print:mt-4">
             {education.map((e) => (
-              <li key={e.school}>
-                <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
-                  <h3 className="font-semibold text-text-primary print:text-black">
-                    {e.degree}
-                  </h3>
-                  <span className="font-mono text-xs text-text-muted print:text-black">
+              <li
+                key={e.school}
+                className="border-b border-border-subtle py-7 print:break-inside-avoid print:py-4"
+              >
+                <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+                  <h3 className="text-h3 text-text-primary">{e.degree}</h3>
+                  <span className="shrink-0 font-mono text-label text-text-muted">
                     {e.period}
                   </span>
                 </div>
-                <p className="text-sm">{e.school}</p>
-                <p className="mt-1 text-sm">{e.detail}</p>
+                <p className="mt-2 font-mono text-label uppercase text-accent-cyan">
+                  {e.school}
+                </p>
+                <p className="mt-3 text-sec text-text-secondary">{e.detail}</p>
               </li>
             ))}
           </ul>
         </section>
 
-        <section>
-          <h2 className="border-b border-border-default pb-2 font-display text-xl text-text-primary print:border-black print:text-black">
+        <section id="selected-projects" className={sectionSpacing}>
+          <SectionHeading href="/projects" linkLabel="All projects →">
             Selected projects
-          </h2>
-          <ul className="mt-4 list-disc space-y-1 pl-5">
-            {selectedProjects.map((p) => (
-              <li key={p}>{p}</li>
-            ))}
-          </ul>
+          </SectionHeading>
+          <RuledList items={selectedProjects} />
         </section>
 
-        <section>
-          <h2 className="border-b border-border-default pb-2 font-display text-xl text-text-primary print:border-black print:text-black">
+        <section id="research" className={sectionSpacing}>
+          <SectionHeading href="/research" linkLabel="All research →">
             Research
-          </h2>
-          <ul className="mt-4 list-disc space-y-1 pl-5">
-            {resumeResearch.map((r) => (
-              <li key={r}>{r}</li>
-            ))}
-          </ul>
+          </SectionHeading>
+          <RuledList items={resumeResearch} />
         </section>
 
-        <section>
-          <h2 className="border-b border-border-default pb-2 font-display text-xl text-text-primary print:border-black print:text-black">
-            Talks & workshops
-          </h2>
-          <ul className="mt-4 list-disc space-y-1 pl-5">
-            {talks.map((t) => (
-              <li key={t}>{t}</li>
-            ))}
-          </ul>
+        <section id="talks" className={sectionSpacing}>
+          <SectionHeading>Talks &amp; workshops</SectionHeading>
+          <RuledList items={talks} />
         </section>
 
-        <section>
-          <h2 className="border-b border-border-default pb-2 font-display text-xl text-text-primary print:border-black print:text-black">
-            Skills
-          </h2>
-          <p className="mt-4 leading-relaxed">{resumeSkills}</p>
+        <section id="skills" className={sectionSpacing}>
+          <SectionHeading>Skills</SectionHeading>
+          <RuledList items={skillGroups} />
         </section>
 
-        <p className="text-center text-sm text-text-muted print:hidden">
-          <Link href="/contact" className="text-accent-cyan hover:underline">
+        <p className="mt-16 text-meta text-text-muted print:hidden">
+          <Link
+            href="/contact"
+            className="text-accent-cyan underline-offset-4 hover:underline"
+          >
             Contact →
           </Link>
         </p>
       </div>
-    </div>
+
+      <Aside className="mt-14">
+        <p className="font-mono text-label uppercase text-text-muted">
+          On this page
+        </p>
+        <ul className="mt-4 space-y-3">
+          {sections.map((s) => (
+            <li key={s.id}>
+              <a
+                href={`#${s.id}`}
+                className="text-meta text-text-muted transition-colors duration-200 hover:text-accent-cyan"
+              >
+                {s.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </Aside>
+    </>
   );
 }

@@ -30,7 +30,6 @@ export const navItems: NavItem[] = [
   { href: "/about", label: "About" },
   { href: "/projects", label: "Projects" },
   { href: "/research", label: "Research" },
-  { href: "/cosmic-notes", label: "Cosmic Notes" },
   { href: "/resume", label: "Resume" },
   { href: "/contact", label: "Contact" },
 ];

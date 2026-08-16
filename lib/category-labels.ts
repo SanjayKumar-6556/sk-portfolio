@@ -12,19 +12,6 @@ export const projectCategoryLabels: Record<
   tools: "Tools",
 };
 
-export const projectFilters: Array<{
-  id: "all" | ProjectFrontmatter["category"];
-  label: string;
-}> = [
-  { id: "all", label: "All" },
-  { id: "ai-systems", label: "AI Systems" },
-  { id: "llm-agents", label: "LLM & Agents" },
-  { id: "automation", label: "Automation" },
-  { id: "research", label: "Research" },
-  { id: "backend", label: "Backend" },
-  { id: "tools", label: "Tools" },
-];
-
 export const researchTypeLabels = {
   thesis: "Thesis",
   paper: "Paper",

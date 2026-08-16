@@ -3,28 +3,45 @@ import { cn } from "@/lib/utils";
 
 export type Crumb = { label: string; href?: string };
 
+/**
+ * The opening line of an inner page — not a section, and not a banner.
+ *
+ * Titles are sentence case and rendered verbatim: pass "Projects", not
+ * "MY PROJECTS". There is no bottom rule; 40px of space separates better than
+ * a hairline whose length differed on every route. The shell owns top padding,
+ * so this component declares none.
+ *
+ * `subtitle` and `children` are gone. Chips, email links and type labels go in
+ * an <Aside>, or in a plain line under the header.
+ */
 export function PageHeader({
   crumbs,
   title,
-  subtitle,
-  children,
+  purpose,
   className,
 }: {
   crumbs: Crumb[];
   title: string;
-  subtitle?: React.ReactNode;
-  children?: React.ReactNode;
+  /** One-line statement of what the page is for. */
+  purpose?: string;
   className?: string;
 }) {
   return (
-    <header className={cn("border-b border-border-subtle pb-12 pt-28 md:pt-36", className)}>
-      <nav aria-label="Breadcrumb" className="mb-6">
-        <ol className="flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-text-muted">
+    <header className={cn(className)}>
+      <nav aria-label="Breadcrumb" className="mb-5">
+        <ol className="flex flex-wrap items-center gap-2 font-mono text-label uppercase text-text-muted">
           {crumbs.map((c, i) => (
             <li key={`${c.label}-${i}`} className="flex items-center gap-2">
-              {i > 0 ? <span aria-hidden className="text-border-strong">/</span> : null}
+              {i > 0 ? (
+                <span aria-hidden className="text-border-strong">
+                  /
+                </span>
+              ) : null}
               {c.href ? (
-                <Link href={c.href} className="hover:text-accent-cyan">
+                <Link
+                  href={c.href}
+                  className="transition-colors duration-200 hover:text-accent-cyan"
+                >
                   {c.label}
                 </Link>
               ) : (
@@ -34,13 +51,10 @@ export function PageHeader({
           ))}
         </ol>
       </nav>
-      <h1 className="font-display text-[clamp(2.25rem,7vw,4.25rem)] font-semibold uppercase leading-[1.05] tracking-[0.06em] text-text-primary md:tracking-[0.08em]">
-        {title}
-      </h1>
-      {subtitle ? (
-        <div className="mt-6 flex flex-wrap gap-2">{subtitle}</div>
+      <h1 className="text-h1 text-text-primary">{title}</h1>
+      {purpose ? (
+        <p className="mt-4 text-lede text-text-secondary">{purpose}</p>
       ) : null}
-      {children}
     </header>
   );
 }

@@ -88,7 +88,7 @@ export function ProjectsFilterClient({
       {filtered.length === 0 ? (
         <p className="mt-10 text-sec text-text-muted">Nothing here yet.</p>
       ) : (
-        <ul className="mt-10 border-t border-border-subtle transition-opacity hover:[&>li:not(:hover)]:opacity-55">
+        <ul className="mt-10 space-y-4 transition-opacity hover:[&>li:not(:hover)]:opacity-55">
           {filtered.map((p) => (
             <ProjectRow key={p.slug} project={p} headingLevel="h2" />
           ))}

@@ -102,7 +102,7 @@ export default async function ProjectCaseStudyPage(props: Props) {
             <SectionHeading href="/projects" linkLabel="All projects →">
               More work
             </SectionHeading>
-            <ul className="mt-10 border-t border-border-subtle transition-opacity hover:[&>li:not(:hover)]:opacity-55">
+            <ul className="mt-10 space-y-4 transition-opacity hover:[&>li:not(:hover)]:opacity-55">
               {prev ? <AdjacentRow project={prev} /> : null}
               {next ? <AdjacentRow project={next} /> : null}
             </ul>

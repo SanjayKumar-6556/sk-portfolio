@@ -62,7 +62,7 @@ export default function ResearchPage() {
       />
 
       <FadeUp className="mt-10">
-        <ul className="border-t border-border-subtle hover:[&>li:not(:hover)]:opacity-55">
+        <ul className="space-y-4 hover:[&>li:not(:hover)]:opacity-55">
           {items.map((r) => (
             <ResearchRow key={r.slug} item={r} headingLevel="h2" />
           ))}

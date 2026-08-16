@@ -1,4 +1,5 @@
 import { FadeUp } from "@/components/motion/fade-up";
+import { Bleed } from "@/components/layout/shell";
 import { ResearchRow } from "@/components/research/research-row";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { getAllResearch } from "@/lib/content";
@@ -12,6 +13,10 @@ import { getAllResearch } from "@/lib/content";
  * Was a horizontal-scroll carousel of glass cards with its own max-w-6xl, its
  * own black band and violet "Read more →" links — three grammars nothing else
  * on the site used, and a scroll direction nobody discovers.
+ *
+ * Three across the full 1152px, matching the work grid above it. `Bleed`
+ * keeps the same left edge as the prose, so widening changes nothing about
+ * the alignment.
  */
 export function ResearchStrip() {
   const items = [...getAllResearch()]
@@ -24,17 +29,17 @@ export function ResearchStrip() {
   if (items.length === 0) return null;
 
   return (
-    <section className="mt-16 md:mt-24 lg:mt-32">
+    <Bleed as="section" className="mt-16 md:mt-24 lg:mt-32">
       <FadeUp>
         <SectionHeading href="/research" linkLabel="All research →">
           Research
         </SectionHeading>
-        <ul className="mt-10 border-t border-border-subtle transition-opacity hover:[&>li:not(:hover)]:opacity-55">
+        <ul className="mt-10 grid gap-4 transition-opacity lg:grid-cols-3 hover:[&>li:not(:hover)]:opacity-55">
           {items.map((item) => (
             <ResearchRow key={item.slug} item={item} />
           ))}
         </ul>
       </FadeUp>
-    </section>
+    </Bleed>
   );
 }

@@ -35,12 +35,29 @@ export function ListRow({
   headingLevel?: "h2" | "h3";
 }) {
   return (
-    <li className="group relative border-b border-border-subtle py-7 transition-opacity duration-200">
-      {/* Bleeds 20px past the text so it reads as a surface, not an outlined box. */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -inset-x-5 inset-y-0 rounded-lg bg-white/[0.03] opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-      />
+    /*
+      THE CARD EDGE IS THE ALIGNMENT LINE, not the text inside it.
+
+      The first version bled outward by its own padding so the inner text stayed
+      on the shell's left edge. That works in a single column and breaks the
+      moment these are laid out in a grid: every cell bleeds both ways, so
+      neighbouring cards collide in the gutter. It also cannot align the second
+      column with anything.
+
+      So the card's own left edge now sits on the shell edge, level with the
+      section heading above it, and the text is inset by the padding. That is
+      what the reference sites do — a card is an object, and the eye reads its
+      edge, not its contents, as the line down the page.
+    */
+    <li
+      className="
+        group relative rounded-card border border-border-subtle
+        bg-surface-card p-5 shadow-lift-1
+        transition-[background-color,border-color,box-shadow,opacity] duration-200
+        hover:border-border-default hover:bg-surface-card-hover hover:shadow-lift-2
+        sm:p-6
+      "
+    >
       <div className="relative">
         {eyebrow ? (
           <p className="font-mono text-label uppercase text-accent-cyan">

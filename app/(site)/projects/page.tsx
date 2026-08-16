@@ -1,3 +1,4 @@
+import { Ambient } from "@/components/ambient/ambient";
 import { PageHeader } from "@/components/layout/page-header";
 import {
   ProjectsFilterClient,
@@ -50,6 +51,14 @@ export default function ProjectsPage() {
 
   return (
     <>
+      {/*
+        No EoR plate here, deliberately: these are LLM, automation and scraper
+        case studies, and a 21-cm map behind them would be a non-sequitur. The
+        `projects` variant is the one that paints `.ambient__grid` instead — a
+        48px cyan plot field that makes the seven rows read as objects on an
+        instrumented plane. Instrumentation, not cosmology.
+      */}
+      <Ambient variant="projects" />
       <PageHeader
         crumbs={[{ label: "Home", href: "/" }, { label: "Projects" }]}
         title="Projects"

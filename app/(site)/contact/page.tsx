@@ -1,3 +1,4 @@
+import { Ambient } from "@/components/ambient/ambient";
 import { PageHeader } from "@/components/layout/page-header";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { docMetadata } from "@/lib/seo";
@@ -31,6 +32,15 @@ export default function ContactPage() {
 
   return (
     <>
+      {/*
+        The cheapest strong ambience on the site. This page ends around 60% of
+        a 1080p fold and the rest is empty ground, so `contact` inverts the
+        mask and blooms eor-late UP from the footer into that emptiness —
+        nothing here competes with it. It is the plate, not the mesh, that
+        carries it; see the note above the [data-ambient="contact"] block in
+        globals.css for why cyan-2 stays at the site default here.
+      */}
+      <Ambient variant="contact" />
       <PageHeader
         crumbs={[{ label: "Home", href: "/" }, { label: "Contact" }]}
         title="Contact"

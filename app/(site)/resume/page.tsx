@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import Link from "next/link";
+import { Ambient } from "@/components/ambient/ambient";
 import { PageHeader } from "@/components/layout/page-header";
 import { Aside } from "@/components/layout/shell";
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -74,6 +75,17 @@ export default function ResumePage() {
 
   return (
     <>
+      {/*
+        `quiet` — grain at 0.018 and one weak cyan source. No plate, because
+        this page's primary output medium is paper: it has a print-only
+        document head below, a print-scoped wrapper that blackens every token
+        colour, and globals.css forces `body { background: #fff }` for print.
+        Ambience here is a liability, so it gets just enough not to read as a
+        different site on screen. `.ambient` carries `print:hidden`, which the
+        print block resolves to `display: none !important` — verified: nothing
+        from this layer reaches paper.
+      */}
+      <Ambient variant="quiet" />
       <PageHeader
         className="print:hidden"
         crumbs={[{ label: "Home", href: "/" }, { label: "Resume" }]}

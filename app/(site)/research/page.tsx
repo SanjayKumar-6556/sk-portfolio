@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Ambient } from "@/components/ambient/ambient";
 import { PageHeader } from "@/components/layout/page-header";
 import { Aside } from "@/components/layout/shell";
 import { FadeUp } from "@/components/motion/fade-up";
@@ -55,6 +56,15 @@ export default function ResearchPage() {
 
   return (
     <>
+      {/*
+        The only page on the site that runs the full x_HI 0.88 → 0.63 → 0.29
+        sequence, because this page IS the cosmology: scrolling it advances
+        reionization through his own three simulated 21-cm maps. The plate is
+        positioned at 62% 8%, which keeps the densest structure off the two
+        real document thumbnails in the rail below — a texture behind a thesis
+        cover is competition, not context.
+      */}
+      <Ambient variant="research" />
       <PageHeader
         crumbs={[{ label: "Home", href: "/" }, { label: "Research" }]}
         title="Research"

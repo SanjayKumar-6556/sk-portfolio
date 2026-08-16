@@ -44,7 +44,14 @@ export function ProjectSpec({
   const hasLinks = Boolean(links?.github || links?.demo || links?.paper);
 
   return (
-    <div className={cn(className)}>
+    // `.tech-scan` (globals.css) on the RAIL arrangement only: a 4px-pitch
+    // scanline, masked to nothing by 72% of the panel's height. The rail is
+    // the one place on a case study that is out of the reading path entirely,
+    // so this is where the instrument panel is allowed to look like an
+    // instrument — the inline arrangement sits directly above 10,000
+    // characters of body copy and gets nothing. Additive via cn(), which is a
+    // plain join: it can only add to `className`, never override it.
+    <div className={cn(rail && "tech-scan", className)}>
       <dl
         className={
           rail

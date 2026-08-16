@@ -1,4 +1,3 @@
-import { FadeUp } from "@/components/motion/fade-up";
 import { Bleed } from "@/components/layout/shell";
 import { ProjectRow } from "@/components/projects/project-row";
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -22,7 +21,7 @@ export async function FeaturedProjects() {
 
   return (
     <Bleed as="section" className="mt-16 md:mt-24 lg:mt-32">
-      <FadeUp>
+      <div className="reveal">
         <SectionHeading href="/projects" linkLabel="All projects →">
           Selected work
         </SectionHeading>
@@ -31,7 +30,7 @@ export async function FeaturedProjects() {
             <ProjectRow key={p.slug} project={p} />
           ))}
         </ul>
-      </FadeUp>
+      </div>
     </Bleed>
   );
 }

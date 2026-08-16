@@ -1,4 +1,3 @@
-import { FadeUp } from "@/components/motion/fade-up";
 import { Bleed } from "@/components/layout/shell";
 import { ResearchRow } from "@/components/research/research-row";
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -30,7 +29,7 @@ export function ResearchStrip() {
 
   return (
     <Bleed as="section" className="mt-16 md:mt-24 lg:mt-32">
-      <FadeUp>
+      <div className="reveal">
         <SectionHeading href="/research" linkLabel="All research →">
           Research
         </SectionHeading>
@@ -39,7 +38,7 @@ export function ResearchStrip() {
             <ResearchRow key={item.slug} item={item} />
           ))}
         </ul>
-      </FadeUp>
+      </div>
     </Bleed>
   );
 }

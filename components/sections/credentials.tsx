@@ -2,6 +2,7 @@ import Link from "next/link";
 import { timelineEntries } from "@/lib/about-data";
 import { getAllResearch } from "@/lib/content";
 import { experience } from "@/lib/resume-data";
+import { cn } from "@/lib/utils";
 
 /**
  * THE PROOF, DERIVED — NOT WRITTEN.
@@ -63,9 +64,32 @@ export function getCredentials(): Credential[] {
 }
 
 /**
- * The hero's one-line proof strip: mono, slash-separated, wrapping to two lines
- * in the 640px reading column. Same "/" divider grammar as the breadcrumb, so
- * the two mono micro-lines on a page read as one system.
+ * THE PROOF BAND — the hero's three verified facts, at the weight they earn.
+ *
+ * This used to be one wrapping line of 12px mono muted text, slash-separated,
+ * sitting between the lede and the buttons. It was the highest-value and the
+ * lowest-weighted element on the first screen: the entire physics → cosmology
+ * → AI argument, set smaller than the breadcrumb on every inner page, in the
+ * one colour on the site that is only just legible.
+ *
+ * Same three facts, same source, same order — re-weighted into the site's own
+ * card grammar and widened to the full 1152px via <Bleed> at the call site, so
+ * the first screen ends on an object instead of trailing off into empty
+ * right-hand space. RULE 2 holds: nothing here is written. `label` is
+ * structural UI; every other string comes verbatim from getCredentials above.
+ *
+ * Three changes beyond weight, all structural:
+ *   - the value is `text-h3`, so a scanner reads "MSc, Astronomy" and
+ *     "JCAP 12 (2025) 055" at the same size as a project title;
+ *   - `period` is now shown, so "Now" answers "and is he working today?";
+ *   - `href` is finally honoured — the published paper was already carrying a
+ *     link target that the old strip silently dropped, so the one checkable
+ *     credential on the page was not clickable.
+ *
+ * CONTRAST: labels and details are `--text-muted` at 12/13px over the card
+ * (3.5% white) over the plate at its 0.20 ceiling — 4.62:1, which clears AA
+ * with the margin the ambient budget allocated for exactly this element. Do
+ * not add a second wash behind it.
  */
 export function CredentialStrip({ className }: { className?: string }) {
   const credentials = getCredentials();
@@ -73,21 +97,38 @@ export function CredentialStrip({ className }: { className?: string }) {
 
   return (
     <ul
-      className={`flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-label text-text-muted${
-        className ? ` ${className}` : ""
-      }`}
+      className={cn(
+        "grid rounded-card border border-border-subtle bg-surface-card shadow-lift-1 sm:grid-cols-3",
+        className,
+      )}
     >
-      {credentials.map((c, i) => (
-        <li key={c.label} className="flex items-center gap-3">
-          {i > 0 ? (
-            <span aria-hidden className="text-border-strong">
-              /
-            </span>
+      {credentials.map((c) => (
+        <li
+          key={c.label}
+          className="border-b border-border-subtle p-5 last:border-b-0 sm:border-b-0 sm:border-l sm:first:border-l-0 sm:p-6"
+        >
+          <p className="font-mono text-label uppercase text-text-muted">
+            {c.label}
+          </p>
+          <p className="mt-3 text-h3 text-text-primary">
+            {c.href ? (
+              <Link
+                href={c.href}
+                className="transition-colors duration-200 hover:text-accent-cyan"
+              >
+                {c.value}
+              </Link>
+            ) : (
+              c.value
+            )}
+          </p>
+          {c.detail || c.period ? (
+            <p className="mt-2 text-meta text-text-muted">
+              {c.detail}
+              {c.detail && c.period ? " · " : null}
+              {c.period}
+            </p>
           ) : null}
-          <span>
-            <span className="text-text-secondary">{c.value}</span>
-            {c.detail ? ` · ${c.detail}` : null}
-          </span>
         </li>
       ))}
     </ul>

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Ambient } from "@/components/ambient/ambient";
 import { PageHeader } from "@/components/layout/page-header";
 import { Aside } from "@/components/layout/shell";
 import { MdxBody } from "@/components/mdx/mdx-body";
@@ -59,6 +60,16 @@ export default async function ProjectCaseStudyPage(props: Props) {
 
   return (
     <>
+      {/*
+        `doc` — the weakened mesh, grain and vignette, and nothing else. No
+        plate and no grid, for one concrete reason: components/mdx/figure.tsx
+        renders matplotlib figures on `bg-white`, the brightest object on the
+        entire site, and any texture around a white slab reads as dirt. This
+        is also 10,000 characters of technical argument; the ambient's job
+        here is to keep the page in the same world as /projects, not to be
+        noticed. It matches the index exactly, so index → detail is continuous.
+      */}
+      <Ambient variant="doc" />
       <PageHeader
         crumbs={[
           { label: "Home", href: "/" },

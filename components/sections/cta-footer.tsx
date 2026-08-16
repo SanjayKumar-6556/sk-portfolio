@@ -1,4 +1,3 @@
-import { FadeUp } from "@/components/motion/fade-up";
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/ui/section-heading";
 
@@ -15,15 +14,22 @@ import { SectionHeading } from "@/components/ui/section-heading";
 export function CtaFooter() {
   return (
     <section className="mt-16 border-t border-border-subtle pt-16 md:mt-24 lg:mt-32">
-      <FadeUp>
+      <div className="reveal">
         <SectionHeading>Let&apos;s build something intelligent.</SectionHeading>
         <p className="mt-6 text-body text-text-secondary">
           Open to engineering roles, research collaborations, and consulting.
         </p>
         <div className="mt-8 flex flex-wrap gap-4">
-          <Button href="/contact">Get in touch</Button>
+          {/* The page's one primary action, so it carries --glow-cyan — see
+              the note in hero.tsx about why button.tsx's own glow is inert. */}
+          <Button
+            href="/contact"
+            className="shadow-glow-cyan hover:shadow-[0_0_38px_-6px_rgba(0,209,255,0.6)]"
+          >
+            Get in touch
+          </Button>
         </div>
-      </FadeUp>
+      </div>
     </section>
   );
 }

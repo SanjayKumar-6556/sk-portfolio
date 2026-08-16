@@ -1,6 +1,6 @@
+import { Ambient } from "@/components/ambient/ambient";
 import { PageHeader } from "@/components/layout/page-header";
 import { Aside } from "@/components/layout/shell";
-import { FadeUp } from "@/components/motion/fade-up";
 import { CredentialPanel } from "@/components/sections/credentials";
 import { CtaFooter } from "@/components/sections/cta-footer";
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -47,10 +47,19 @@ const laneDot: Record<Lane, string> = {
  * three elements before the first fact. `aboutLede` is now the header's purpose
  * line, so the first paragraph of the journey is roughly where the old title
  * ended.
+ *
+ * <Ambient variant="about"> must stay the first child — it is `position:
+ * fixed`, so it is not a grid item, and it must never end up inside a
+ * transformed ancestor. This is the one page where the cosmology is literally
+ * the subject, so it gets a plate; but it is also the page whose whole job is
+ * to be read, so it gets `late` (the sparsest of the three maps) and the band
+ * is cut off at 62% of the first viewport, before the journey prose. The
+ * per-variant tuning lives in the AMBIENT block of app/globals.css.
  */
 export default function AboutPage() {
   return (
     <>
+      <Ambient variant="about" />
       <PageHeader
         crumbs={[{ label: "Home", href: "/" }, { label: "About" }]}
         title="About"
@@ -58,13 +67,11 @@ export default function AboutPage() {
       />
 
       <section className="mt-10">
-        <FadeUp>
-          <div className="space-y-6 text-body text-text-secondary">
-            {journeyParagraphs.map((paragraph, i) => (
-              <p key={i}>{paragraph}</p>
-            ))}
-          </div>
-        </FadeUp>
+        <div className="reveal space-y-6 text-body text-text-secondary">
+          {journeyParagraphs.map((paragraph, i) => (
+            <p key={i}>{paragraph}</p>
+          ))}
+        </div>
       </section>
 
       {/*
@@ -77,46 +84,66 @@ export default function AboutPage() {
       </Aside>
 
       <section className="mt-16 md:mt-24 lg:mt-32">
-        <FadeUp>
+        <div className="reveal">
           <SectionHeading>The route</SectionHeading>
-          <ol className="relative mt-10 border-l border-border-default pl-8">
-            {timelineEntries.map((entry) => (
-              <li key={entry.id} className="relative pb-10 last:pb-0">
-                <span
-                  aria-hidden
-                  className={`absolute -left-8 top-1 size-3.5 -translate-x-1/2 rounded-full border-2 bg-bg-base ${laneDot[entry.lane]}`}
-                />
-                <p className="flex flex-wrap items-center gap-x-2 font-mono text-label uppercase">
-                  <span className={laneText[entry.lane]}>
-                    {laneLabel[entry.lane]}
-                  </span>
-                  <span aria-hidden className="text-border-strong">
-                    ·
-                  </span>
-                  <span className="text-text-muted">{entry.org}</span>
-                  {entry.period ? (
-                    <>
-                      <span aria-hidden className="text-border-strong">
-                        ·
-                      </span>
-                      <span className="text-text-muted">{entry.period}</span>
-                    </>
-                  ) : null}
-                </p>
-                <h3 className="mt-2 text-h3 text-text-primary">
-                  {entry.title}
-                </h3>
-                <p className="mt-3 text-body text-text-secondary">
-                  {entry.body}
-                </p>
-              </li>
-            ))}
-          </ol>
-        </FadeUp>
+          {/*
+            THE RAIL IS AN AXIS, so it is ruled like one. The timeline is the
+            physics → AI arc and it was a bare 1px border; the ticks turn it
+            into a plotted axis, which is the technical motif this page asked
+            for and costs one aria-hidden span and no image.
+
+            Even 12px pitch on purpose — an odd pitch beats against the device
+            pixel grid and moirés. Never transform this element. The lane dots
+            below are `bg-bg-base`, i.e. opaque, so they punch through both the
+            rail and the ticks exactly as before.
+
+            It is a sibling of the <ol>, not a child: only <li> may be a child
+            of <ol>.
+          */}
+          <div className="relative mt-10">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 left-0 w-2 bg-[repeating-linear-gradient(180deg,rgba(237,237,240,0.13)_0_1px,rgba(0,0,0,0)_1px_12px)] [-webkit-mask-image:linear-gradient(180deg,#000_0,#000_86%,rgba(0,0,0,0)_100%)] [mask-image:linear-gradient(180deg,#000_0,#000_86%,rgba(0,0,0,0)_100%)]"
+            />
+            <ol className="relative border-l border-border-default pl-8">
+              {timelineEntries.map((entry) => (
+                <li key={entry.id} className="relative pb-10 last:pb-0">
+                  <span
+                    aria-hidden
+                    className={`absolute -left-8 top-1 size-3.5 -translate-x-1/2 rounded-full border-2 bg-bg-base ${laneDot[entry.lane]}`}
+                  />
+                  <p className="flex flex-wrap items-center gap-x-2 font-mono text-label uppercase">
+                    <span className={laneText[entry.lane]}>
+                      {laneLabel[entry.lane]}
+                    </span>
+                    <span aria-hidden className="text-border-strong">
+                      ·
+                    </span>
+                    <span className="text-text-muted">{entry.org}</span>
+                    {entry.period ? (
+                      <>
+                        <span aria-hidden className="text-border-strong">
+                          ·
+                        </span>
+                        <span className="text-text-muted">{entry.period}</span>
+                      </>
+                    ) : null}
+                  </p>
+                  <h3 className="mt-2 text-h3 text-text-primary">
+                    {entry.title}
+                  </h3>
+                  <p className="mt-3 text-body text-text-secondary">
+                    {entry.body}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
       </section>
 
       <section className="mt-16 md:mt-24 lg:mt-32">
-        <FadeUp>
+        <div className="reveal">
           <SectionHeading>What carried over</SectionHeading>
           {/* Claims, not openable evidence — so an unruled stack, not rows. */}
           <ul className="mt-8 space-y-8">
@@ -127,11 +154,11 @@ export default function AboutPage() {
               </li>
             ))}
           </ul>
-        </FadeUp>
+        </div>
       </section>
 
       <section className="mt-16 md:mt-24 lg:mt-32">
-        <FadeUp>
+        <div className="reveal">
           <SectionHeading>Tools I have actually used</SectionHeading>
           <div className="mt-8 space-y-8">
             {skillGroups.map((group) => (
@@ -149,14 +176,14 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
-        </FadeUp>
+        </div>
       </section>
 
       <section className="mt-16 md:mt-24 lg:mt-32">
-        <FadeUp>
+        <div className="reveal">
           <SectionHeading>Currently</SectionHeading>
           <p className="mt-6 text-body text-text-secondary">{currentlyBody}</p>
-        </FadeUp>
+        </div>
       </section>
 
       <CtaFooter />

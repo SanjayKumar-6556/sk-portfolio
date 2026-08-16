@@ -220,6 +220,600 @@
   }
 }
 
+/* ============================================================
+   AMBIENT — the reionization field.
+
+   His own simulated 21-cm HI maps (MSc thesis Fig. 3.4) used as
+   texture, not as illustration. Zero JS; every layer is one paint
+   at load and zero paints per frame.
+
+   Rendered by components/ambient/ambient.tsx as the first child of a
+   page fragment. Unlayered, like .shell above, for the same reason:
+   it must beat Tailwind's utilities layer.
+
+   The tunables live in :root as raw values, NOT in @theme inline —
+   they are not utilities and no call site may reference them.
+   ============================================================ */
+
+:root {
+  /* HARD CEILING. 0.20 is the largest value that keeps --text-muted at
+     >= 4.5:1 over the plate's brightest measured region (rgb(1,88,123))
+     WITH a translucent card on top (4.62:1). Do not raise it: 0.26
+     measures 4.16:1 under a card. */
+  --ambient-plate-opacity: 0.34;   /* his 21-cm maps — was 0.2, too faint to read as anything */
+  --ambient-aurora-opacity: 0.5;
+
+  --ambient-grain-opacity: 0.022;
+  --ambient-mesh-cyan: 0.065; /* top-right, the dominant source */
+  --ambient-mesh-cyan-2: 0.05; /* bottom, the secondary source  */
+  --ambient-mesh-violet: 0.025; /* top-left, the accent whisper  */
+  --ambient-vignette: 0.62;
+  --ambient-plate-fade: 84%; /* where the top-anchored plate reaches zero */
+}
+
+/*
+  DO NOT change `fixed` to `absolute`. A fixed box is not a grid item, so
+  this costs no .shell row and needs no bleed exception; an absolute one
+  would become a grid item, insert an empty row, and position itself
+  against the initial containing block.
+
+  z-index -1 is safe: the site's entire z inventory is 50 (header),
+  60 (mobile overlay) and 100 (skip link). The band -9…-1 is free.
+*/
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden; /* the overscanned mesh can never make a scrollbar */
+  contain: layout paint; /* it can never affect the layout of anything */
+  isolation: isolate;
+
+  /* Paint the ground HERE as well as on body. body's background
+     propagates to the root canvas, and this element must have a real
+     ground of its own so the stack composites deterministically. */
+  background: var(--bg-base);
+}
+
+.ambient > * {
+  position: absolute;
+  inset: 0;
+}
+
+/* --- Layer 1: the mesh — the light source ------------------------- */
+
+.ambient__mesh {
+  /* Overscan: filter: blur() samples transparent pixels from outside the
+     element and leaves a visibly paler frame around a full-bleed layer
+     without this. Do not remove. */
+  inset: -20%;
+  background:
+    radial-gradient(
+      38rem 26rem at 78% 10%,
+      rgba(0, 209, 255, var(--ambient-mesh-cyan)),
+      rgba(0, 209, 255, 0) 62%
+    ),
+    radial-gradient(
+      30rem 22rem at 8% 2%,
+      rgba(167, 139, 250, var(--ambient-mesh-violet)),
+      rgba(167, 139, 250, 0) 64%
+    ),
+    radial-gradient(
+      52rem 30rem at 44% 104%,
+      rgba(0, 209, 255, var(--ambient-mesh-cyan-2)),
+      rgba(0, 209, 255, 0) 68%
+    );
+  /* Static, painted once. It exists to kill the mach band at the 62%
+     stop. NEVER animate a blur radius. */
+  filter: blur(28px);
+}
+
+/* --- Layer 1b: the aurora — the only thing that moves on its own -- */
+
+/*
+  Everything else in this stack is static or scroll-linked, which means a
+  visitor who does not scroll sees a still page. The reference sites all
+  have something drifting; this is that, and it is the difference between
+  "a dark page with a texture on it" and a page that feels alive.
+
+  Technique is the standard aurora: a few wide colour bands, blurred until
+  they lose their edges, on a background three times wider than the element,
+  with the background POSITION animated. Position is compositor-friendly and
+  costs one paint; animating the gradient stops or the blur radius would
+  repaint every frame and is the usual reason these look janky.
+
+  60s, linear, infinite — slow enough that it reads as atmosphere rather than
+  as a screensaver. Masked to the top two-thirds so it lives behind the hero
+  and is gone by the time anyone is reading a case study.
+*/
+.ambient__aurora {
+  inset: -25%;
+  opacity: var(--ambient-aurora-opacity);
+  background-image: repeating-linear-gradient(
+    108deg,
+    rgba(0, 209, 255, 0) 0%,
+    rgba(0, 209, 255, 0.55) 9%,
+    rgba(167, 139, 250, 0.4) 17%,
+    rgba(0, 209, 255, 0) 26%,
+    rgba(0, 209, 255, 0) 38%,
+    rgba(111, 227, 255, 0.45) 47%,
+    rgba(0, 209, 255, 0) 58%
+  );
+  background-size: 300% 200%;
+  background-position: 50% 50%;
+  filter: blur(64px) saturate(115%);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 34%,
+    rgba(0, 0, 0, 0) 74%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 34%,
+    rgba(0, 0, 0, 0) 74%
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ambient__aurora {
+    animation: ambient-aurora 60s linear infinite;
+  }
+}
+
+@keyframes ambient-aurora {
+  from {
+    background-position: 50% 50%;
+  }
+  to {
+    background-position: 350% 50%;
+  }
+}
+
+/* Nothing drifts behind a page that is about to be printed or read as a
+   document; those variants set the opacity to 0 below. */
+
+/* --- Layer 2: the plates — his own 21-cm maps --------------------- */
+
+.ambient__plates {
+  overflow: hidden;
+  /* The mask lives on the WRAPPER, not on the plate, so the scroll drift
+     below cannot make the fade edge crawl. */
+  -webkit-mask-image: radial-gradient(
+    130% 88% at 50% -6%,
+    #000 0%,
+    #000 24%,
+    rgba(0, 0, 0, 0) var(--ambient-plate-fade)
+  );
+  mask-image: radial-gradient(
+    130% 88% at 50% -6%,
+    #000 0%,
+    #000 24%,
+    rgba(0, 0, 0, 0) var(--ambient-plate-fade)
+  );
+}
+
+.ambient__plate {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat; /* NEVER repeat. These are photographs. */
+  background-size: cover;
+  background-position: 62% 8%; /* densest structure under the right rail */
+  opacity: 0; /* overridden per variant below */
+}
+
+.ambient__plate--early {
+  background-image: url("/backgrounds/eor-early.webp");
+}
+
+.ambient__plate--mid {
+  background-image: url("/backgrounds/eor-mid.webp");
+}
+
+.ambient__plate--late {
+  background-image: url("/backgrounds/eor-late.webp");
+}
+
+/*
+  Exactly one plate per variant carries the base opacity. THIS IS THE
+  SHIPPED STATE with no JS, no scroll-timeline support and reduced
+  motion — authored deliberately, not by accident. The failure state of
+  every effect below is this state, which is visible.
+*/
+[data-ambient="home"] .ambient__plate--mid,
+[data-ambient="research"] .ambient__plate--early,
+[data-ambient="about"] .ambient__plate--late,
+[data-ambient="contact"] .ambient__plate--late {
+  opacity: var(--ambient-plate-opacity);
+}
+
+/* /about is a prose page — the band stops before the first journey
+   paragraph. */
+[data-ambient="about"] .ambient__plates {
+  --ambient-plate-fade: 62%;
+}
+
+/* /contact is bottom-anchored: the page ends at ~60% of the fold and the
+   rest is empty ground. The cheapest strong ambience on the site. */
+[data-ambient="contact"] .ambient__plates {
+  -webkit-mask-image: radial-gradient(
+    120% 82% at 50% 108%,
+    #000 0%,
+    #000 18%,
+    rgba(0, 0, 0, 0) 86%
+  );
+  mask-image: radial-gradient(
+    120% 82% at 50% 108%,
+    #000 0%,
+    #000 18%,
+    rgba(0, 0, 0, 0) 86%
+  );
+}
+
+[data-ambient="contact"] .ambient__plate {
+  background-position: 38% 82%;
+}
+
+/* Below 1024 drop every plate but one. A background-image inside a
+   non-matching media query is NOT fetched, so this is a real saving:
+   /research goes 442 KB -> 155 KB, / goes 240 KB -> 155 KB. */
+@media (max-width: 63.99rem) {
+  [data-ambient="home"] .ambient__plate--late,
+  [data-ambient="research"] .ambient__plate--early,
+  [data-ambient="research"] .ambient__plate--late {
+    display: none;
+    background-image: none;
+  }
+
+  [data-ambient="research"] .ambient__plate--mid {
+    opacity: var(--ambient-plate-opacity);
+  }
+}
+
+/* --- Layer 3: the plot grid — /projects only ---------------------- */
+
+/*
+  Instrumentation, not cosmology: those are LLM/automation/scraper
+  projects and an EoR map there is a non-sequitur. Integer pitch,
+  integer 1px lines, never transformed — a fractional or transformed
+  hairline resamples and crawls. 0.05 alpha is chosen so it may read
+  THROUGH the translucent cards (4.88:1 for --text-muted, verified).
+*/
+.ambient__grid {
+  background-image:
+    linear-gradient(rgba(0, 209, 255, 0.05) 1px, rgba(0, 0, 0, 0) 1px),
+    linear-gradient(90deg, rgba(0, 209, 255, 0.05) 1px, rgba(0, 0, 0, 0) 1px);
+  background-size:
+    48px 48px,
+    48px 48px;
+  -webkit-mask-image: radial-gradient(
+    72% 62% at 50% 0%,
+    #000,
+    rgba(0, 0, 0, 0) 78%
+  );
+  mask-image: radial-gradient(72% 62% at 50% 0%, #000, rgba(0, 0, 0, 0) 78%);
+}
+
+/* --- Layer 4: the grain — the dither ------------------------------ */
+
+/*
+  Normal composite. NOT mix-blend-mode: overlay — on a #0b0b0c ground
+  overlay() = 2*b*s clamps the grain's whole range to 0…0x16, a one-sided
+  effect with no headroom and the number-one source of "the blend
+  silently did nothing".
+
+  feColorMatrix saturate=0 is load-bearing: feTurbulence generates
+  independent R/G/B, so raw output is COLOURED noise and reads as JPEG
+  chroma speckle over near-black.
+
+  Never drop the tile below 256px — under ~200px the eye adapts and sees
+  a lattice instead of grain.
+*/
+.ambient__grain {
+  opacity: var(--ambient-grain-opacity);
+  background-size: 256px 256px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --- Layer 5: the vignette ---------------------------------------- */
+
+/*
+  An accessibility component as much as an aesthetic one: it pulls the
+  composited ground back down wherever the mesh peaks, worth about
+  +0.35 of contrast ratio at the corners. Do not remove it.
+*/
+.ambient__vignette {
+  background: radial-gradient(
+    128% 96% at 50% -5%,
+    rgba(0, 0, 0, 0) 36%,
+    rgba(0, 0, 0, var(--ambient-vignette)) 100%
+  );
+}
+
+/* --- Per-variant tuning ------------------------------------------- */
+
+/* /projects and the two [slug] routes: no plate, so the mesh carries the
+   page — but it is weakened, because a white matplotlib figure plate on
+   textured ground reads as a dirty screen. */
+[data-ambient="doc"] {
+  --ambient-aurora-opacity: 0.16; /* long reading; a drift behind 10k characters is noise */
+  --ambient-mesh-cyan: 0.05;
+  --ambient-mesh-cyan-2: 0.03;
+  --ambient-mesh-violet: 0.02;
+}
+
+/*
+  /contact — DELIBERATE DEVIATION FROM THE SPEC, measured.
+
+  The spec asked for cyan-2 at 0.09 here AND a bottom-anchored plate. Those
+  two are the same place: the secondary mesh source is centred at `44% 104%`
+  and the contact plate's mask core is at `50% 108%`. Stacking them breaks the
+  spec's own non-negotiable #2 ("the plate band and the mesh peaks must not
+  coincide") and measures 4.25:1 for --text-muted on open ground — a fail.
+  It matters concretely: the global footer's copyright and tagline are
+  `text-meta text-text-muted` and sit exactly there.
+
+  Neither dimming option passes cleanly (plate 0.12 + cyan 0.09 = 4.54 open,
+  and lowering the plate throws away the one thing on this page that is his
+  own data). So the plate IS the bottom bloom here — 0.20 of a real 21-cm map
+  is far more light, and far more interesting light, than a 0.09 flat radial —
+  and cyan-2 stays at the site default. Measured: 4.62:1 open ground.
+
+  This block therefore holds the default value on purpose. Do not "restore"
+  0.09 without re-running the budget in §1.6 of the design note.
+*/
+[data-ambient="contact"] {
+  --ambient-mesh-cyan-2: 0.05;
+}
+
+/* /resume and /not-found: a document built to be printed. Grain and one
+   whisper of cyan, and print:hidden takes even that away on paper. */
+[data-ambient="quiet"] {
+  --ambient-mesh-cyan: 0.045;
+  --ambient-mesh-cyan-2: 0.02;
+  --ambient-mesh-violet: 0;
+  --ambient-grain-opacity: 0.018;
+}
+
+/* ============================================================
+   MOTION.
+
+   Four effects, all transform/opacity only, all driven by CSS
+   scroll-driven animations, none touching JavaScript.
+
+   Note the gate direction: motion is gated BEHIND
+   `prefers-reduced-motion: no-preference`, never the reverse. That is
+   the only formulation where the accessibility branch and the no-JS
+   branch are the same branch, and both are "visible and static".
+   ============================================================ */
+
+/*
+  THE REIONIZATION CROSS-FADE. x_HI 0.88 -> 0.63 -> 0.29 is a time
+  sequence and scroll is a time axis, so scrolling the page advances
+  reionization. Scroll-LINKED, not autoplaying, so WCAG 2.2.2 does not
+  apply: the user drives it and stopping scrolling stops it.
+*/
+@keyframes eor-2-out {
+  0% {
+    opacity: var(--ambient-plate-opacity);
+  }
+  62% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes eor-2-in {
+  0% {
+    opacity: 0;
+  }
+  55% {
+    opacity: 0;
+  }
+  100% {
+    opacity: var(--ambient-plate-opacity);
+  }
+}
+
+@keyframes eor-3-a {
+  0% {
+    opacity: var(--ambient-plate-opacity);
+  }
+  38% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes eor-3-b {
+  0% {
+    opacity: 0;
+  }
+  38% {
+    opacity: var(--ambient-plate-opacity);
+  }
+  78% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes eor-3-c {
+  0% {
+    opacity: 0;
+  }
+  72% {
+    opacity: 0;
+  }
+  100% {
+    opacity: var(--ambient-plate-opacity);
+  }
+}
+
+/*
+  PLATE DRIFT. +/-2.2% over the whole document, well under the ~10%
+  differential at which parallax visibly detaches. scale(1.055)
+  guarantees the translate never exposes an edge. Transform-only, so it
+  composites off the main thread.
+*/
+@keyframes plate-drift {
+  from {
+    transform: translate3d(0, -2.2%, 0) scale(1.055);
+  }
+  to {
+    transform: translate3d(0, 2.2%, 0) scale(1.055);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    /* Drift only. Variants with a cross-fade re-declare the whole
+       animation-name list below — an element has ONE list, so the two
+       effects cannot be inherited separately. */
+    .ambient__plate {
+      animation-name: plate-drift;
+      animation-timeline: scroll(root block);
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+    }
+
+    /* HOME — two plates, mid -> late. */
+    [data-ambient="home"] .ambient__plate--mid {
+      animation-name: eor-2-out, plate-drift;
+      animation-timeline: scroll(root block), scroll(root block);
+      animation-duration: auto, auto;
+      animation-timing-function: linear, linear;
+      animation-fill-mode: both, both;
+    }
+
+    [data-ambient="home"] .ambient__plate--late {
+      animation-name: eor-2-in, plate-drift;
+      animation-timeline: scroll(root block), scroll(root block);
+      animation-duration: auto, auto;
+      animation-timing-function: linear, linear;
+      animation-fill-mode: both, both;
+    }
+
+    /* RESEARCH — three plates, the full sequence. Desktop only: below
+       1024 only the mid plate is fetched at all. */
+    @media (min-width: 64rem) {
+      [data-ambient="research"] .ambient__plate--early {
+        animation-name: eor-3-a, plate-drift;
+        animation-timeline: scroll(root block), scroll(root block);
+        animation-duration: auto, auto;
+        animation-timing-function: linear, linear;
+        animation-fill-mode: both, both;
+      }
+
+      [data-ambient="research"] .ambient__plate--mid {
+        animation-name: eor-3-b, plate-drift;
+        animation-timeline: scroll(root block), scroll(root block);
+        animation-duration: auto, auto;
+        animation-timing-function: linear, linear;
+        animation-fill-mode: both, both;
+      }
+
+      [data-ambient="research"] .ambient__plate--late {
+        animation-name: eor-3-c, plate-drift;
+        animation-timeline: scroll(root block), scroll(root block);
+        animation-duration: auto, auto;
+        animation-timing-function: linear, linear;
+        animation-fill-mode: both, both;
+      }
+    }
+  }
+}
+
+/* ============================================================
+   REVEAL — the replacement for components/motion/fade-up.tsx.
+
+   The hidden state lives in a STYLESHEET RULE, not an inline style, so
+   nothing is serialised into .next/server/app/*.html and RULE 4 holds by
+   construction. CSS is render-blocking, so the rule and the engine that
+   resolves it arrive in the same paint — there is no window in which the
+   rule exists but the animation does not, which is exactly the window
+   framer-motion opened.
+
+   An element already in the viewport at load resolves `entry` progress
+   at 100% on the first frame: visible, no flash. This also fixes the bug
+   every IntersectionObserver reveal has — find-in-page and anchor jumps
+   into un-revealed content — because a view timeline resolves in the
+   same frame as the scroll and an observer callback lands a frame later.
+
+   SECTION-LEVEL ONLY. Never list items, never a card grid item by item.
+   Ten reveals on this site is the ceiling.
+   ============================================================ */
+
+@keyframes reveal-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation-name: reveal-rise;
+      animation-timeline: view();
+      animation-range: entry 8% entry 55%;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+    }
+  }
+}
+
+/* This site has a résumé page that is built to be printed. */
+@media print {
+  .reveal {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   SCOPED MOTIFS — CSS/SVG, for the pages that want something
+   technical rather than cosmological.
+   ============================================================ */
+
+/*
+  The /projects/[slug] spec rail is an instrument panel that does not
+  look like one, and it is out of the reading path entirely. Apply
+  additively via className on the rail layout's outer div —
+  cn() in lib/utils.ts is a plain join with no tailwind-merge, so this
+  can only add, never override.
+
+  Even pixel pitch only: an odd pitch beats against the device pixel
+  grid and moirés. Never transform this element.
+*/
+.tech-scan {
+  position: relative;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.022) 0 1px,
+    rgba(0, 0, 0, 0) 1px 4px
+  );
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    #000 0,
+    #000 72%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(180deg, #000 0, #000 72%, rgba(0, 0, 0, 0) 100%);
+}
+
 html {
   scroll-behavior: smooth;
   /* The sticky header is 64px tall and in flow; without this an in-page

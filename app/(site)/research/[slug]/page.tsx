@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { Ambient } from "@/components/ambient/ambient";
 import { PageHeader } from "@/components/layout/page-header";
 import { Aside } from "@/components/layout/shell";
 import { MdxBody } from "@/components/mdx/mdx-body";
@@ -55,6 +56,15 @@ export default async function ResearchDetailPage(props: Props) {
 
   return (
     <>
+      {/*
+        `doc`, the same as a case study and for the same two reasons: the MDX
+        body puts figures on white plates, and this is long-form reading. It
+        deliberately does NOT inherit /research's three-plate EoR sequence —
+        the index earns that because the sequence is its subject; a single
+        paper does not, and the thesis cover image in the rail would be
+        competing with a texture of the very data it documents.
+      */}
+      <Ambient variant="doc" />
       <PageHeader
         crumbs={[
           { label: "Home", href: "/" },

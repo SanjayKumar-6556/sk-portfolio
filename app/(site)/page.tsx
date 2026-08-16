@@ -1,7 +1,7 @@
+import { Ambient } from "@/components/ambient/ambient";
 import { CtaFooter } from "@/components/sections/cta-footer";
 import { FeaturedProjects } from "@/components/sections/featured-projects";
 import { Hero } from "@/components/sections/hero";
-import { HeroBackdrop } from "@/components/sections/hero-backdrop";
 import { ResearchStrip } from "@/components/sections/research-strip";
 import { docMetadata } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
@@ -41,15 +41,21 @@ const jsonLd = {
  * page stopped being able to back itself up. Removed rather than rewritten:
  * the page does not need a claims section, and adjectives were never going to
  * beat the work directly above them.
+ *
+ * <Ambient> is the first child and must stay the first child: it is
+ * `position: fixed`, so it is not a grid item and costs no .shell row, and it
+ * must not end up inside a `.reveal` (a transform is a containing block for
+ * fixed descendants). `variant="home"` is the strongest ambience on the site —
+ * his own 21-cm map at x_HI 0.63 cross-fading to 0.29 as the page scrolls.
  */
 export default function HomePage() {
   return (
     <>
+      <Ambient variant="home" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <HeroBackdrop />
       <Hero />
       <FeaturedProjects />
       <ResearchStrip />

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { imageSize } from "@/lib/image-size";
 import { cn } from "@/lib/utils";
 
 /**
@@ -8,6 +9,13 @@ import { cn } from "@/lib/utils";
  * public/research/figures/PROVENANCE.md, which traces every one to its source
  * and records the one figure that was deliberately excluded because his thesis
  * credits it to somebody else. Nothing decorative goes through this component.
+ *
+ * NO width/height PROPS ON PURPOSE. They are read from the file (see
+ * lib/image-size.ts). MDX drops JSX expression attributes under `next dev`, so
+ * `width={1400}` arrived undefined and the page 500'd in development while
+ * building fine in production. Reading the file also means the reserved aspect
+ * ratio can never disagree with the actual image, which it already did once
+ * after two figures were re-cropped.
  *
  * WHY THE WHITE PLATE. The site is near-black; the figures are matplotlib
  * output on white. Inverting or recolouring them would misrepresent published
@@ -24,18 +32,17 @@ export function Figure({
   src,
   alt,
   caption,
-  width,
-  height,
   className,
 }: {
+  /** Path under public/, e.g. "/research/figures/fig-inference-pipeline.webp". */
   src: string;
   alt: string;
   /** What the reader should take from it. Plain language, no invented numbers. */
   caption: string;
-  width: number;
-  height: number;
   className?: string;
 }) {
+  const { width, height } = imageSize(src);
+
   return (
     <figure className={cn("mt-10", className)}>
       <a

@@ -156,10 +156,15 @@ export default async function ResearchDetailPage(props: Props) {
               width={artefact.width}
               height={artefact.height}
               sizes="(min-width: 1280px) 336px, 256px"
-              className="w-full rounded-sm border border-border-subtle opacity-85 transition duration-200 group-hover:border-border-strong group-hover:opacity-100"
+              // See the note on the same idiom in app/(site)/research/page.tsx:
+              // knocking a white-field artefact back is a dark-ground move and
+              // erases it on a light one.
+              className="w-full rounded-sm border border-border-subtle opacity-85 transition duration-200 group-hover:border-border-strong group-hover:opacity-100 light:border-border-default light:opacity-100"
               priority
             />
-            <p className="mt-3 font-mono text-label uppercase text-text-muted transition-colors duration-200 group-hover:text-accent-cyan">
+            {/* -ink: muted -> accent-cyan is 1.01:1 on light, i.e. invisible.
+                See the note in components/projects/project-artifacts.tsx. */}
+            <p className="mt-3 font-mono text-label uppercase text-text-muted transition-colors duration-200 group-hover:text-accent-cyan-ink">
               {r.pdf ? "Open the PDF ↗" : artefact.alt}
             </p>
           </a>

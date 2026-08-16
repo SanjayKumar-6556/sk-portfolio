@@ -42,3 +42,65 @@ most likely to cause a contrast failure.
 They are square and intended for `background-size: cover`. At 1600px the grain is fine
 enough at desktop widths to read as texture rather than as a photograph, which is the
 effect wanted.
+
+---
+
+## The light-theme twins — `eor-*-light.webp`
+
+Same source, same figure, **derived from the dark set's own source, not from the dark
+files**. Added when the site gained a light theme.
+
+### Why they exist
+
+The dark plates are dark-field: measured, not one pixel in any of the three is above
+L 128. Composited on paper they are a grey blanket — `eor-mid` at its shipped 0.34
+opacity measures **−25 L\*** against a light ground and drops muted ink to **3.4:1**, a
+straight WCAG failure before a card goes on top. Turning them down does not rescue them:
+at the alpha where the darkening matches dark mode's perceptual weight, the structure is
+gone (sd < 0.7 L\* against dark's 4.22). That outcome costs the bytes and loses the idea.
+
+There is also a physics problem with the obvious fixes. A plain composite or a
+`multiply` blend puts the heaviest ink on the pixels that are **darkest in the source** —
+i.e. on the **ionized voids**, where there is no hydrogen. The layer would say its one
+fact backwards.
+
+### What was done
+
+Resized to 1200×1200, reduced to luminance, then mapped through a paper→ink ramp:
+
+```
+d    = min(1, L / 88) ** 3.0          # 88 = p99.8 across ALL THREE files
+px   = lerp(paper #f6f7fa, ink #08566e, d)
+```
+
+The normaliser is **shared across the three files, not computed per file**, so the
+early → mid → late density progression survives the transform. Measured mean ink density
+comes out 0.465 / 0.345 / 0.155 — the same ordering as the dark set.
+
+Gamma 3.0 means only the densest hydrogen inks and the voids fall back to paper, which is
+what keeps the contrast cost low: the "background" of the plate is already the page
+colour, so it costs nothing, and only the filaments spend contrast.
+
+### The one thing to know before reusing them
+
+**The tone is reversed relative to the dark set.** On the dark plates, bright = neutral
+hydrogen. On the light twins, **dark ink = neutral hydrogen** and paper = ionized voids.
+The signal is in the same place; the polarity of the ground is not.
+
+That matters because the hero panel (`components/sections/hi-map-panel.tsx`) keeps its own
+rainbow colormap in **both** themes — it is a real figure with a caption, and the caption
+teaches the reader "dark regions are ionized bubbles". So on a light page the ambient
+texture and the hero figure encode brightness in opposite directions. At 0.44 behind a
+radial mask almost nobody decodes the ambient layer, and it is `aria-hidden` with no
+caption, so nothing on the page makes a false claim — but the one hiring manager who
+notices is exactly this site's audience, and it should be a deliberate choice rather than
+a surprise.
+
+| File | x_HI | Bytes |
+| --- | --- | --- |
+| `eor-early-light.webp` | 0.88 | 263 KB |
+| `eor-mid-light.webp` | 0.63 | 183 KB |
+| `eor-late-light.webp` | 0.29 | 86 KB |
+
+Do **not** ship these as RGBA with the density in the alpha channel, elegant as that is:
+WebP stores the alpha plane losslessly and `eor-early` comes out at 1.38 MB.

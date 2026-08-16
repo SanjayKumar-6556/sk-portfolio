@@ -105,19 +105,19 @@ export function Hero() {
           {/* Corner ticks — the instrument grammar, four hairline Ls. */}
           <span
             aria-hidden
-            className="pointer-events-none absolute left-3 top-3 size-3 border-l border-t border-accent-cyan/40"
+            className="pointer-events-none absolute left-3 top-3 size-3 border-l border-t border-accent-cyan-hairline"
           />
           <span
             aria-hidden
-            className="pointer-events-none absolute right-3 top-3 size-3 border-r border-t border-accent-cyan/40"
+            className="pointer-events-none absolute right-3 top-3 size-3 border-r border-t border-accent-cyan-hairline"
           />
           <span
             aria-hidden
-            className="pointer-events-none absolute bottom-3 left-3 size-3 border-b border-l border-accent-cyan/40"
+            className="pointer-events-none absolute bottom-3 left-3 size-3 border-b border-l border-accent-cyan-hairline"
           />
           <span
             aria-hidden
-            className="pointer-events-none absolute bottom-3 right-3 size-3 border-b border-r border-accent-cyan/40"
+            className="pointer-events-none absolute bottom-3 right-3 size-3 border-b border-r border-accent-cyan-hairline"
           />
         </div>
       </Aside>

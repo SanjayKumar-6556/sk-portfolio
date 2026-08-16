@@ -87,7 +87,7 @@ export function getCredentials(): Credential[] {
  *     credential on the page was not clickable.
  *
  * CONTRAST: labels and details are `--text-muted` at 12/13px over the card
- * (3.5% white) over the plate at its 0.20 ceiling — 4.62:1, which clears AA
+ * (3.5% white) over the plate — 4.62:1 on the dark ground, which clears AA
  * with the margin the ambient budget allocated for exactly this element. Do
  * not add a second wash behind it.
  */

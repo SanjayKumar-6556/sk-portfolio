@@ -90,13 +90,21 @@ export default function ResearchPage() {
               return (
                 <li key={r.slug}>
                   <Link href={`/research/${r.slug}`} className="group block">
+                    {/*
+                      opacity-80 knocks a white-field artefact back so it does
+                      not glare on a near-black page. On paper it does the
+                      opposite: the thesis cover is 95% pixels at >= 250, so at
+                      80% it composites to CR 1.035 against the ground — a
+                      blank rectangle inside an invisible border. Light mode
+                      takes the full-strength image and a real hairline.
+                    */}
                     <Image
                       src={a.src}
                       alt={a.alt}
                       width={a.width}
                       height={a.height}
                       sizes="190px"
-                      className="w-[190px] rounded-sm border border-border-subtle opacity-80 transition duration-200 group-hover:border-border-strong group-hover:opacity-100"
+                      className="w-[190px] rounded-sm border border-border-subtle opacity-80 transition duration-200 group-hover:border-border-strong group-hover:opacity-100 light:border-border-default light:opacity-100"
                     />
                     <p className="mt-2 font-mono text-label uppercase text-text-secondary transition-colors duration-200 group-hover:text-accent-cyan">
                       {researchTypeLabels[r.type]}

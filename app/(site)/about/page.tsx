@@ -103,7 +103,7 @@ export default function AboutPage() {
           <div className="relative mt-10">
             <span
               aria-hidden
-              className="pointer-events-none absolute inset-y-0 left-0 w-2 bg-[repeating-linear-gradient(180deg,rgba(237,237,240,0.13)_0_1px,rgba(0,0,0,0)_1px_12px)] [-webkit-mask-image:linear-gradient(180deg,#000_0,#000_86%,rgba(0,0,0,0)_100%)] [mask-image:linear-gradient(180deg,#000_0,#000_86%,rgba(0,0,0,0)_100%)]"
+              className="pointer-events-none absolute inset-y-0 left-0 w-2 bg-[repeating-linear-gradient(180deg,var(--border-strong)_0_1px,rgba(0,0,0,0)_1px_12px)] [-webkit-mask-image:linear-gradient(180deg,#000_0,#000_86%,rgba(0,0,0,0)_100%)] [mask-image:linear-gradient(180deg,#000_0,#000_86%,rgba(0,0,0,0)_100%)]"
             />
             <ol className="relative border-l border-border-default pl-8">
               {timelineEntries.map((entry) => (

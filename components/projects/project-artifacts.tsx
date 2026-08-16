@@ -86,7 +86,15 @@ export function ProjectArtifacts({
                 sizes="150px"
                 className="h-auto w-full rounded-md border border-border-subtle transition-colors duration-200 group-hover:border-border-strong"
               />
-              <p className="mt-2 font-mono text-label uppercase text-text-muted transition-colors duration-200 group-hover:text-accent-cyan">
+              {/*
+                -ink, not -accent-cyan. On the light ground --text-muted
+                #5c5f68 and --accent-cyan #00697f differ by 1% in luminance
+                (1.01:1) — the same value in two hues — so on a 12px uppercase
+                mono label this hover would be no visible change at all.
+                Against the ink token it is 1.78:1. Dark is unaffected in kind:
+                the ink there is a brighter cyan, so the hover still lifts.
+              */}
+              <p className="mt-2 font-mono text-label uppercase text-text-muted transition-colors duration-200 group-hover:text-accent-cyan-ink">
                 {researchTypeLabels[item.type]} · {item.year}
                 <span className="sr-only"> — {item.title}</span>
               </p>

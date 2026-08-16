@@ -17,11 +17,20 @@ import { cn } from "@/lib/utils";
  * ratio can never disagree with the actual image, which it already did once
  * after two figures were re-cropped.
  *
- * WHY THE WHITE PLATE. The site is near-black; the figures are matplotlib
- * output on white. Inverting or recolouring them would misrepresent published
- * research, so they sit on a light plate instead — the way a paper reproduces a
- * figure. That reads as "a real figure", where a recoloured one reads as a
- * styling mistake.
+ * WHY THE WHITE PLATE. The figures are matplotlib output on white. Inverting
+ * or recolouring them would misrepresent published research, so they sit on a
+ * light plate instead — the way a paper reproduces a figure. That reads as "a
+ * real figure", where a recoloured one reads as a styling mistake.
+ *
+ * The plate stays white in BOTH themes, for that reason. What changes is what
+ * has to hold it: on a dark ground the plate's own edge does all the work, but
+ * on a light one the two purely-white figures measure 1.04:1 against the page
+ * and the plate simply is not there. Measured, `border-border-subtle` over the
+ * white plate composites to CR 1.012 — not a faint border, nothing at all.
+ *
+ * So light mode gets `shadow-lift-1` and the stronger hairline. This is the
+ * one place on the site where a card is DELIBERATELY not made of the surface
+ * tokens: the plate is part of the artefact, not part of the chrome.
  *
  * WHY THE FULL-SIZE LINK. Corner plots and multi-panel grids carry small axis
  * labels that are unreadable in a 640px reading column, and shrinking them to
@@ -49,7 +58,7 @@ export function Figure({
         href={src}
         target="_blank"
         rel="noopener noreferrer"
-        className="group block rounded-lg border border-border-subtle bg-white p-3 transition-colors duration-200 hover:border-border-strong sm:p-4"
+        className="group block rounded-lg border border-border-subtle bg-white p-3 transition-colors duration-200 hover:border-border-strong light:border-border-default light:shadow-lift-1 sm:p-4"
       >
         <Image
           src={src}

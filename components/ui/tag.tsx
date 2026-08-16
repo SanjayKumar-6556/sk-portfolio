@@ -30,7 +30,11 @@ export function Tag({
         "inline-flex items-center rounded-full border border-border-default bg-transparent px-2.5 py-1 font-mono text-label uppercase text-text-secondary",
         interactive &&
           "min-h-11 cursor-pointer px-4 py-2 transition-colors duration-200 hover:border-accent-cyan/30 hover:text-text-primary",
-        active && "border-accent-cyan/40 bg-accent-cyan-soft text-accent-cyan-ink",
+        // The hairline token, not a /40 alpha: /40 reads on a dark ground and
+        // measures 1.89:1 on a light one, which is below the 3:1 WCAG 1.4.11
+        // asks of the border that carries this control's selected state.
+        active &&
+          "border-accent-cyan-hairline bg-accent-cyan-soft text-accent-cyan-ink",
         className,
       )}
     >

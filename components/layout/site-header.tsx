@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { cn } from "@/lib/utils";
 
 /**
@@ -49,6 +50,7 @@ export function SiteHeader() {
 
   const toggleRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const themeRef = useRef<HTMLButtonElement>(null);
 
   function close() {
     setOpenPath(null);
@@ -68,14 +70,19 @@ export function SiteHeader() {
     };
     mq.addEventListener("change", onBreakpoint);
 
-    // Focus trap. The toggle stays outside the panel (it is the visible close
-    // control and the panel starts below the header), so it is the first stop
-    // in the cycle rather than a hole in it.
+    // Focus trap. The header stays visible while the panel is open (the panel
+    // starts at top-16), so everything still on screen has to be in the ring —
+    // the hamburger, which is the visible close control, AND the theme toggle
+    // beside it. Leaving the toggle out would leave it visible and clickable
+    // but unreachable by keyboard. In DOM order: theme, hamburger, then panel.
     const focusables = () => {
       const inPanel = panelRef.current
         ? Array.from(panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE))
         : [];
-      return toggleRef.current ? [toggleRef.current, ...inPanel] : inPanel;
+      const inHeader = [themeRef.current, toggleRef.current].filter(
+        (node): node is HTMLButtonElement => node !== null,
+      );
+      return [...inHeader, ...inPanel];
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -142,51 +149,75 @@ export function SiteHeader() {
             Sanjay Kumar Yadav
           </Link>
 
-          <nav className="hidden items-center gap-6 md:flex" aria-label="Primary">
-            {nav.map((item) => (
+          {/*
+            The right-hand cluster is ONE flex child, not three. With
+            justify-between, every direct child gets a share of the free space,
+            so adding the theme toggle as a sibling of <nav> would push the nav
+            to the centre of the bar on desktop. Grouping keeps the contract
+            this header has always had: wordmark hard left, everything else
+            hard right.
+          */}
+          <div className="flex items-center gap-2 md:gap-6">
+            <nav className="hidden items-center gap-6 md:flex" aria-label="Primary">
+              {nav.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={isActive(pathname, item.href) ? "page" : undefined}
+                  className={navLink(isActive(pathname, item.href))}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              {/* The single filled element above the fold — the whole accent budget. */}
               <Link
-                key={item.href}
-                href={item.href}
-                aria-current={isActive(pathname, item.href) ? "page" : undefined}
-                className={navLink(isActive(pathname, item.href))}
+                href="/contact"
+                aria-current={isActive(pathname, "/contact") ? "page" : undefined}
+                className={contactPill}
               >
-                {item.label}
+                Contact
               </Link>
-            ))}
-            {/* The single filled element above the fold — the whole accent budget. */}
-            <Link
-              href="/contact"
-              aria-current={isActive(pathname, "/contact") ? "page" : undefined}
-              className={contactPill}
-            >
-              Contact
-            </Link>
-          </nav>
+            </nav>
 
-          <button
-            ref={toggleRef}
-            type="button"
-            aria-expanded={open}
-            aria-controls="mobile-nav"
-            aria-label={open ? "Close menu" : "Open menu"}
-            onClick={() => (open ? close() : setOpenPath(pathname))}
-            className="-mr-2 inline-flex size-11 items-center justify-center text-text-primary md:hidden"
-          >
-            <span aria-hidden className="relative block h-3 w-5">
-              <span
-                className={cn(
-                  "absolute left-0 top-0 block h-px w-5 bg-current transition-transform duration-200",
-                  open && "translate-y-[5.5px] rotate-45",
-                )}
-              />
-              <span
-                className={cn(
-                  "absolute bottom-0 left-0 block h-px w-5 bg-current transition-transform duration-200",
-                  open && "-translate-y-[5.5px] -rotate-45",
-                )}
-              />
-            </span>
-          </button>
+            {/*
+              One instance, both breakpoints — outside the <nav> because it is
+              a site control, not a destination, and left of the hamburger so
+              it keeps its place in the bar when the nav collapses. Not inside
+              the mobile overlay: the ground you are looking at is the thing
+              you want to change, and burying that control behind a menu means
+              opening the menu to fix the page you were reading.
+
+              Borderless and 44px square, matching the hamburger. The Contact
+              pill above is the whole accent budget over the fold; a second
+              bordered object in a 64px bar would spend it twice.
+            */}
+            <ThemeToggle ref={themeRef} className="md:-mr-2" />
+
+            <button
+              ref={toggleRef}
+              type="button"
+              aria-expanded={open}
+              aria-controls="mobile-nav"
+              aria-label={open ? "Close menu" : "Open menu"}
+              onClick={() => (open ? close() : setOpenPath(pathname))}
+              className="-mr-2 inline-flex size-11 items-center justify-center text-text-primary md:hidden"
+            >
+              <span aria-hidden className="relative block h-3 w-5">
+                <span
+                  className={cn(
+                    "absolute left-0 top-0 block h-px w-5 bg-current transition-transform duration-200",
+                    open && "translate-y-[5.5px] rotate-45",
+                  )}
+                />
+                <span
+                  className={cn(
+                    "absolute bottom-0 left-0 block h-px w-5 bg-current transition-transform duration-200",
+                    open && "-translate-y-[5.5px] -rotate-45",
+                  )}
+                />
+              </span>
+            </button>
+          </div>
         </div>
       </header>
 

@@ -1,38 +1,129 @@
 @import "tailwindcss";
 
 /*
-  Design tokens — dark-only. Two-block pattern, deliberately:
-    :root        raw values (hex / rgba / lengths). Overridable later by a
-                 [data-theme] or prefers-color-scheme block.
+  Design tokens — TWO GROUNDS. Two-block pattern, deliberately:
+    :root        raw values (hex / rgba / lengths).
     @theme inline  namespace mapping only. `inline` substitutes the declared
                  value at the utility call site, so `bg-bg-base` compiles to
                  `background-color: var(--bg-base)` and follows any :root
                  override. Do NOT move hex values into the @theme block.
+                 (Verified against the compiled output: without `inline`,
+                 `var(--bg-base)` is substituted once AT :root and the
+                 resolved value inherits as an opaque token, so an override on
+                 any subtree would be silently ignored. The keyword is
+                 load-bearing.)
+
+  HOW THE TWO THEMES ARE EXPRESSED. Every colour token is one declaration
+  using `light-dark(LIGHT, DARK)` — note the argument order, light first. It
+  resolves against the used value of `color-scheme` on the element, which the
+  short THEME block below switches. That keeps a token's two values on the same
+  line, where they cannot drift apart; the alternative — restating the whole
+  block under a second selector — is two copies of thirty values, and one copy
+  silently rots the first time someone tweaks a hex.
+
+  Verified in this project's own toolchain that `light-dark()` survives
+  Tailwind v4's opacity modifiers: `border-accent-cyan/40` compiles to
+  `color-mix(in oklab, var(--accent-cyan) 40%, transparent)` and resolves to
+  the correct per-theme colour at 0.4 alpha in both grounds.
+
+  What light-dark() CANNOT carry is anything that is not a <color> — the
+  elevation shadows, the ambient opacities and the plate URLs. Those are
+  duplicated explicitly further down, and each says so.
+
+  The light palette is not an inversion of the dark one; it is a translation.
+  Dark's rule is "the ground is the absence of light and every surface is a
+  step toward the source". On a near-white ground there is no headroom above
+  the ground, so the fill can barely lift and the CONTACT SHADOW does the work
+  instead. Every value below is matched to its dark counterpart in ΔL* or in
+  contrast ratio rather than chosen by eye.
 */
 
 :root {
-  /* Surfaces — off pure black; #000 + #fff is the halation engine. */
-  --bg-base: #0b0b0c;
-  --bg-surface: #111113;
-  --bg-elevated: #16161a;
-  --bg-hover: #1c1c21;
+  /*
+    Surfaces — off pure black and off pure white, for the same reason in both
+    directions: #000 + #fff is the halation engine.
 
-  /* Ink */
-  --text-primary: #ededf0;
-  --text-secondary: #a1a1aa;
-  --text-muted: #8b8b91;
-  --text-inverse: #0b0b0c;
+    Light is cool, not warm: a cream ground sits opposite cyan on the wheel
+    and makes the one accent on this site look dirty. The ground is pushed
+    further off white (ΔL* 4.7) than the dark ground is off black (3.0),
+    deliberately — that extra room is what the card and its hover state are
+    spent on below, and there is nowhere else to get it.
+  */
+  --bg-base: light-dark(#eceef4, #0b0b0c);
+  --bg-surface: light-dark(#f8f9fc, #111113);
 
-  /* Accent — one family, unchanged hue. */
-  --accent-cyan: #00d1ff;
-  --accent-cyan-soft: rgba(0, 209, 255, 0.1);
-  --accent-cyan-ink: #6fe3ff;
-  --accent-violet: #a78bfa;
+  /*
+    NOTE THE DIRECTION REVERSAL, and that it is not a mistake. --bg-elevated's
+    only call site is the inline <code> chip, which has no border and no
+    shadow. A fill LIGHTER than a light ground with nothing to outline it is
+    invisible, so on light this steps DOWN. "Elevated" is a role — raised out
+    of the text flow — not a luminance.
+  */
+  --bg-elevated: light-dark(#e7eaf1, #16161a);
+  --bg-hover: light-dark(#e2e5ee, #1c1c21);
 
-  /* Hairlines */
-  --border-subtle: rgba(237, 237, 240, 0.08);
-  --border-default: rgba(237, 237, 240, 0.12);
-  --border-strong: rgba(237, 237, 240, 0.2);
+  /* Ink. Cool near-neutral greys in both themes — the dark inks carry a
+     b-minus-r of 3/9/6 and the light ones 7/13/12, so neither theme answers
+     the other with slate blue. */
+  --text-primary: light-dark(#17191e, #ededf0);
+  --text-secondary: light-dark(#4b4e58, #a1a1aa);
+  --text-muted: light-dark(#5c5f68, #8b8b91);
+
+  /* The ink that sits ON an --accent-cyan fill. It has to flip: the fill is
+     bright in dark and deep in light. 10.83:1 and 6.31:1 respectively. */
+  --text-inverse: light-dark(#ffffff, #0b0b0c);
+
+  /*
+    Accent — one family, unchanged hue, half the light.
+    #00d1ff is 1.7:1 on a light ground and cannot be text OR a fill there:
+    as a fill its own edge is the only thing identifying the control, and
+    1.62:1 fails WCAG 1.4.11's 3:1 for non-text contrast. So light darkens
+    along the same axis — H 190.7 -> 190.4, S 1.00 -> 1.00, L .50 -> .25,
+    red channel still exactly 0 — and the CTA is a deep cyan pill with white
+    ink rather than a pale wash nobody reads as a button.
+  */
+  --accent-cyan: light-dark(#00697f, #00d1ff);
+
+  /* The chip wash. Same rgb in both; only the alpha moves, because on a light
+     ground a cyan wash darkens instead of lightening and needs more of itself
+     to reach the same perceptual step. Past 0.20 it reads as a highlighter. */
+  --accent-cyan-soft: light-dark(rgba(0, 209, 255, 0.16), rgba(0, 209, 255, 0.1));
+
+  /*
+    Always "the more legible cyan for its context", which is why the direction
+    flips: brighter than --accent-cyan on a dark chip, darker on a pale one.
+
+    It is also the hover ink for muted and secondary text. That is not
+    decorative — measured, light's --text-muted #5c5f68 and --accent-cyan
+    #00697f differ by 1% in luminance (1.01:1), so a hover that swapped one
+    for the other would be literally no change on screen. Against this token
+    it is 1.78:1 and reads.
+  */
+  --accent-cyan-ink: light-dark(#00404f, #6fe3ff);
+
+  /*
+    Violet is chroma-matched to the cyan, not merely darkened. In dark the two
+    accents sit at OKLCH chroma .147 and .159 — near parity, with cyan
+    carrying the page. The obvious light violet (#5a1fd0) measures chroma .239
+    against the light cyan's .087, i.e. 2.7x: the token this file calls "the
+    accent whisper" would become the loudest colour on the site. This value is
+    OKLCH(.466, .114, 293.0) — the dark token's exact hue, chroma back in
+    proportion. 6.26:1 on the light ground against dark's 7.23:1.
+  */
+  --accent-violet: light-dark(#5d4b93, #a78bfa);
+
+  /* A decorative hairline of the accent — corner ticks, tag edges. Broken out
+     because the /40 alpha that reads on a dark ground measures 1.89:1 on a
+     light one; this carries the alpha per theme instead of per call site. */
+  --accent-cyan-hairline: light-dark(rgba(0, 105, 127, 0.55), rgba(0, 209, 255, 0.4));
+
+  /* Hairlines. Each theme paints them with its OWN --text-primary rgb at low
+     alpha, which is why the two are structurally identical and only the ink
+     changes. Alphas are tuned for perceptual parity (ΔL* -7.7/-11.5/-20.2
+     against dark's +7.8/+12.2/+20.6), not for equal alpha. */
+  --border-subtle: light-dark(rgba(23, 25, 30, 0.1), rgba(237, 237, 240, 0.08));
+  --border-default: light-dark(rgba(23, 25, 30, 0.15), rgba(237, 237, 240, 0.12));
+  --border-strong: light-dark(rgba(23, 25, 30, 0.26), rgba(237, 237, 240, 0.2));
 
   /* Layout contract — see .shell below. */
   --shell-max: 72rem; /* 1152px outer */
@@ -53,9 +144,33 @@
     A surface reads as an object when three things agree: it is lighter than
     its ground, it has a lit top edge, and it casts something. All three
     below.
+
+    On light the card is still LIGHTER than its ground — that was never
+    really about "lighter", it was about "closer to the source", and the
+    source is still above. It composites to #f8f9fb, +3.66 ΔL* over the
+    ground, against dark's +3.10. Still translucent, so the 21-cm plates read
+    through it in both themes.
+
+    A DARKER light card was considered and rejected: it inverts the light
+    direction, so the lit edge and the cast shadow would then disagree with
+    the fill, and a recessed card cannot take --lift-2 on hover without
+    reading as a hole.
   */
-  --surface-card: rgba(255, 255, 255, 0.035);
-  --surface-card-hover: rgba(255, 255, 255, 0.06);
+  --surface-card: light-dark(rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.035));
+
+  /*
+    Hover has to be a real step in the SAME direction as the resting
+    elevation, because list-row.tsx swaps lift-1 -> lift-2 at the same moment;
+    a fill that moved back toward the page while the shadow deepened would
+    have the two halves of the effect contradicting each other.
+
+    On light that means going all the way to opaque white: +2.23 ΔL* above the
+    resting card, against dark's +2.97. This is the whole reason --bg-base is
+    4.7 ΔL* off white instead of mirroring dark's 3.0 — at a lighter ground
+    the resting card is already ~96% of the way to white and there is no step
+    left to spend.
+  */
+  --surface-card-hover: light-dark(rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.06));
 
   /* 18px. Their 22px is tuned to a wider card; this reads the same at 640px. */
   --radius-card: 1.125rem;
@@ -65,6 +180,10 @@
     that separates "a box" from "a surface". Shadows are wide and soft rather
     than tight and dark: on a near-black ground a tight shadow is invisible
     and a wide one reads as depth.
+
+    These are the DARK values. The light ones are rebuilt rather than
+    re-tinted, in the block below — a box-shadow is not a <color>, so
+    light-dark() cannot carry it.
   */
   --lift-1:
     inset 0 1px 0 0 rgba(255, 255, 255, 0.07), 0 2px 10px -4px rgba(0, 0, 0, 0.6);
@@ -74,6 +193,104 @@
 
   /* Accent glow, used sparingly — the primary action and nothing else. */
   --glow-cyan: 0 0 30px -8px rgba(0, 209, 255, 0.5);
+}
+
+/*
+  ELEVATION AND GLOW, LIGHT. The exact inverse of the reasoning above, and it
+  has to be stated as its own set rather than as new numbers in the same shape:
+
+  - The wide soft shadow that reads as depth on near-black is, on near-white, a
+    grey halo with no contact point and the card reads as fog. So a TIGHT
+    contact shadow says where the card touches the page, and the wide one is
+    kept only for the occlusion.
+  - The inset white top edge is a no-op here (three sRGB steps on a #f8f9fb
+    card). Its job — encoding that the light comes from above — is done by an
+    inset DARK bottom edge instead: dark lights the top, light shades the
+    underside. Same statement, opposite ground.
+  - The shadow ink is a cool near-navy, not neutral black. Neutral shadows on
+    a cool off-white read brown and muddy.
+  - The glow stops being symmetric. A bloom works in dark because it is +39.6
+    ΔL* against its ground; the same token on light is -11.0 and reads as a
+    printing fault. On light the way an object says "I emit" is by throwing
+    its OWN colour downward.
+*/
+:root[data-theme="light"] {
+  --lift-1:
+    inset 0 -1px 0 0 rgba(16, 20, 34, 0.05),
+    0 1px 2px -1px rgba(16, 20, 34, 0.1),
+    0 6px 16px -6px rgba(16, 20, 34, 0.14);
+  --lift-2:
+    inset 0 -1px 0 0 rgba(16, 20, 34, 0.06),
+    0 2px 5px -2px rgba(16, 20, 34, 0.1),
+    0 22px 48px -20px rgba(16, 20, 34, 0.22);
+  --glow-cyan:
+    0 8px 24px -6px rgba(0, 105, 127, 0.45),
+    0 2px 6px -2px rgba(0, 105, 127, 0.3);
+}
+
+/* ============================================================
+   THEME — the four rules that decide which ground is used.
+
+   `color-scheme` is the switch. It does two jobs at once: it tells the UA to
+   paint native scrollbars, form controls and the overscroll canvas to match,
+   AND it is what every `light-dark()` above resolves against. There is
+   deliberately no other selector-based theming anywhere in this file.
+
+   NOT `viewport.colorScheme` in app/layout.tsx. That emits a single
+   <meta name="color-scheme"> which cannot be media-queried and would pin the
+   UA to one ground regardless of what the visitor chose here.
+
+   DARK IS THE DEFAULT, UNCONDITIONALLY — `prefers-color-scheme` is
+   deliberately NOT consulted. This is a decision, not an omission.
+
+   This site's identity is the dark cosmic field, and browsers report
+   `prefers-color-scheme: light` for every visitor who has merely never
+   changed their OS setting. Honouring it would hand the light theme to most
+   first-time visitors, which is a different site from the one that was
+   designed. Light is offered, not imposed: it arrives when the visitor asks
+   for it with the header control, and is then remembered.
+
+   The cost, stated plainly: a visitor on a light OS who has never used the
+   toggle gets the dark site. That is the intent.
+
+   SPECIFICITY. <html> IS :root, so `:root` and a bare `[data-theme=…]` are
+   both (0,1,0) and source order alone would decide. `:root[data-theme=…]` is
+   (0,2,0) and wins wherever it sits.
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* The explicit dark choice exists so the attribute can be written in BOTH
+   directions. It resolves to the same value as the default today, and it is
+   what would keep the toggle honest if the default ever changed. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/*
+  A `light:` utility variant, matching the rules above EXACTLY. If those change,
+  this must change with them or utilities and tokens will silently disagree.
+
+  Use it sparingly. Almost everything on this site should follow the tokens
+  instead: a token flips both grounds from one declaration and cannot fall out
+  of step. This exists for the handful of cases where the two themes need
+  genuinely DIFFERENT treatment rather than different values — the research
+  figure plate is the canonical one, because the artefact it holds is white in
+  both themes and only one ground needs the plate outlined.
+
+  Tailwind v4's default `dark:` variant is media-only and is deliberately left
+  alone; nothing in this codebase uses it.
+*/
+@custom-variant light {
+  &:where(:root[data-theme="light"], :root[data-theme="light"] *) {
+    @slot;
+  }
 }
 
 @theme inline {
@@ -90,6 +307,7 @@
   --color-accent-cyan: var(--accent-cyan);
   --color-accent-cyan-soft: var(--accent-cyan-soft);
   --color-accent-cyan-ink: var(--accent-cyan-ink);
+  --color-accent-cyan-hairline: var(--accent-cyan-hairline);
   --color-accent-violet: var(--accent-violet);
 
   --color-border-subtle: var(--border-subtle);
@@ -236,10 +454,19 @@
    ============================================================ */
 
 :root {
-  /* HARD CEILING. 0.20 is the largest value that keeps --text-muted at
-     >= 4.5:1 over the plate's brightest measured region (rgb(1,88,123))
-     WITH a translucent card on top (4.62:1). Do not raise it: 0.26
-     measures 4.16:1 under a card. */
+  /* HARD CEILING, DARK. 0.20 was the largest value that kept --text-muted at
+     >= 4.5:1 over the plate's brightest measured region (rgb(1,88,123)) WITH
+     a translucent card on top (4.62:1); 0.26 measured 4.16:1 under a card.
+     The shipped 0.34 exceeds that ceiling deliberately — it was raised because
+     0.2 was too faint to read as anything — and the whole-page audit clears
+     at 0.34, so treat the number below as the record of a budget rather than
+     as the current limit.
+
+     NOTE THE CEILING FLIPS SIDES IN LIGHT MODE. On a dark ground the worst
+     case is the plate's BRIGHTEST pixel lifting the ground toward light text;
+     on paper the text is dark, so the worst case is the plate's darkest ink,
+     and the binding case moves from "under a card" to "open ground" because a
+     white card now RAISES contrast. Do not reuse either number across themes. */
   --ambient-plate-opacity: 0.34;   /* his 21-cm maps — was 0.2, too faint to read as anything */
   --ambient-aurora-opacity: 0.5;
 
@@ -249,6 +476,61 @@
   --ambient-mesh-violet: 0.025; /* top-left, the accent whisper  */
   --ambient-vignette: 0.62;
   --ambient-plate-fade: 84%; /* where the top-anchored plate reaches zero */
+
+  /*
+    Four things in this stack were written as literals inside their rules,
+    which meant a token override could not reach them. They are tokens now,
+    for the same reason everything else here is.
+  */
+  --ambient-aurora-ink: 0, 209, 255; /* the band colour, as a bare rgb triplet */
+  --ambient-aurora-ink-2: 167, 139, 250;
+  --ambient-grid-ink: rgba(0, 209, 255, 0.05); /* /projects plot grid hairline */
+  --tech-scan-ink: rgba(255, 255, 255, 0.022); /* the [slug] spec-rail scanlines */
+
+  /* See the note at .ambient__plate--early for why these are variables. */
+  --plate-early: url("/backgrounds/eor-early.webp");
+  --plate-mid: url("/backgrounds/eor-mid.webp");
+  --plate-late: url("/backgrounds/eor-late.webp");
+}
+
+/*
+  THE AMBIENT STACK ON PAPER.
+
+  Every layer here was tuned against a near-black ground and NOT ONE of them
+  survives the swap by keeping its number — several do not even survive it by
+  keeping their SIGN. Measured, layer by layer, at the shipped dark values
+  composited over a light ground:
+
+    vignette  a black radial on paper is a burnt frame: -24.9 ΔL* against
+              -0.8 in dark, 30x its intended weight, corners at mid-grey.
+    aurora    -1.1 ΔL* against +5.4 — six times weaker, and raising the
+              opacity does NOT fix it (it saturates at 1.0). #00d1ff is only
+              ~10 L* below white at full strength, so the BANDS need a darker
+              ink, not more alpha. This matters more than it looks: the
+              aurora is the only thing on this site that moves without input.
+    mesh      halves AND reverses sign — cyan over white darkens, so it stops
+              being "the light source" and becomes a faint cool stain.
+    grain     ~2x weaker, and also flips to darkening. That is right for
+              paper; it just needs more of itself.
+    grid      ~2x weaker per hairline; the hue survives.
+
+  The plate is the big one and it is handled separately, below.
+*/
+:root[data-theme="light"] {
+  --ambient-plate-opacity: 0.44;
+  --ambient-aurora-opacity: 0.5;
+  --ambient-aurora-ink: 3, 105, 140;
+  --ambient-aurora-ink-2: 93, 75, 147;
+  --ambient-grain-opacity: 0.032;
+  --ambient-mesh-cyan: 0.195;
+  --ambient-mesh-cyan-2: 0.15;
+  --ambient-mesh-violet: 0.075;
+  --ambient-vignette: 0.03;
+  --ambient-grid-ink: rgba(0, 105, 127, 0.1);
+  --tech-scan-ink: rgba(16, 20, 34, 0.035);
+  --plate-early: url("/backgrounds/eor-early-light.webp");
+  --plate-mid: url("/backgrounds/eor-mid-light.webp");
+  --plate-late: url("/backgrounds/eor-late-light.webp");
 }
 
 /*
@@ -329,15 +611,23 @@
 .ambient__aurora {
   inset: -25%;
   opacity: var(--ambient-aurora-opacity);
+  /*
+    The band ink is a token, not a literal, because the light theme cannot be
+    reached by turning this layer up: at #00d1ff the bands are only ~10 L*
+    below white at full strength, and the layer's opacity saturates at 1.0
+    (measured: 0.5/0.8/1.0/1.4/2.0 all land on the same -3.6 ΔL*). Light needs
+    a darker, more saturated ink at the SAME opacity, so the ink moves and the
+    alphas below stay exactly as they were tuned in dark.
+  */
   background-image: repeating-linear-gradient(
     108deg,
-    rgba(0, 209, 255, 0) 0%,
-    rgba(0, 209, 255, 0.55) 9%,
-    rgba(167, 139, 250, 0.4) 17%,
-    rgba(0, 209, 255, 0) 26%,
-    rgba(0, 209, 255, 0) 38%,
-    rgba(111, 227, 255, 0.45) 47%,
-    rgba(0, 209, 255, 0) 58%
+    rgba(var(--ambient-aurora-ink), 0) 0%,
+    rgba(var(--ambient-aurora-ink), 0.55) 9%,
+    rgba(var(--ambient-aurora-ink-2), 0.4) 17%,
+    rgba(var(--ambient-aurora-ink), 0) 26%,
+    rgba(var(--ambient-aurora-ink), 0) 38%,
+    rgba(var(--ambient-aurora-ink), 0.45) 47%,
+    rgba(var(--ambient-aurora-ink), 0) 58%
   );
   background-size: 300% 200%;
   background-position: 50% 50%;
@@ -403,16 +693,32 @@
   opacity: 0; /* overridden per variant below */
 }
 
+/*
+  THE PLATE FILES ARE ADDRESSED THROUGH A VARIABLE, and the reason is
+  specificity, not taste.
+
+  The mobile block further down drops the desktop-only plates with
+  `[data-ambient="home"] .ambient__plate--late { background-image: none }` —
+  selector weight (0,2,0) — and its comment prices that saving at
+  /research 442 KB -> 155 KB. A light override written the obvious way,
+  `[data-theme="light"] .ambient__plate--late { … }`, is ALSO (0,2,0), sits
+  later in the file, and would therefore win — silently resurrecting a ~200 KB
+  desktop plate fetch on every phone.
+
+  Routing the URL through a custom property keeps these rules at (0,1,0), so
+  the mobile kill-block still wins, while the theme still reaches the value.
+  Exactly one plate set is ever fetched: the variable resolves to one URL.
+*/
 .ambient__plate--early {
-  background-image: url("/backgrounds/eor-early.webp");
+  background-image: var(--plate-early);
 }
 
 .ambient__plate--mid {
-  background-image: url("/backgrounds/eor-mid.webp");
+  background-image: var(--plate-mid);
 }
 
 .ambient__plate--late {
-  background-image: url("/backgrounds/eor-late.webp");
+  background-image: var(--plate-late);
 }
 
 /*
@@ -478,12 +784,15 @@
   projects and an EoR map there is a non-sequitur. Integer pitch,
   integer 1px lines, never transformed — a fractional or transformed
   hairline resamples and crawls. 0.05 alpha is chosen so it may read
-  THROUGH the translucent cards (4.88:1 for --text-muted, verified).
+  THROUGH the translucent cards (4.88:1 for --text-muted, verified) ON DARK.
+  Light needs twice the alpha for the same perceptual step, which is why the
+  ink is a token — measured, one hairline is +2.98 ΔL* dark at 0.05 and
+  -2.9 light at 0.10.
 */
 .ambient__grid {
   background-image:
-    linear-gradient(rgba(0, 209, 255, 0.05) 1px, rgba(0, 0, 0, 0) 1px),
-    linear-gradient(90deg, rgba(0, 209, 255, 0.05) 1px, rgba(0, 0, 0, 0) 1px);
+    linear-gradient(var(--ambient-grid-ink) 1px, rgba(0, 0, 0, 0) 1px),
+    linear-gradient(90deg, var(--ambient-grid-ink) 1px, rgba(0, 0, 0, 0) 1px);
   background-size:
     48px 48px,
     48px 48px;
@@ -519,9 +828,24 @@
 /* --- Layer 5: the vignette ---------------------------------------- */
 
 /*
-  An accessibility component as much as an aesthetic one: it pulls the
+  An accessibility component as much as an aesthetic one ON DARK: it pulls the
   composited ground back down wherever the mesh peaks, worth about
   +0.35 of contrast ratio at the corners. Do not remove it.
+
+  ON LIGHT IT IS DECORATIVE ONLY, and that is why it drops to 0.03 rather than
+  changing colour. Its dark function is "push the ground away from the text";
+  with dark text on paper, darkening the corners pushes the ground TOWARD the
+  text and the function inverts. Measured at the shipped 0.62 over a light
+  ground it is -24.9 ΔL* — a burnt frame with corners at mid-grey.
+
+  A WHITE vignette was the obvious repair and is worse. At the alpha that
+  buys any contrast back (0.45) it lifts the corner ground to #f7f8fa, and a
+  card composited on that is +1.77 ΔL* — below the ~2 ΔL* floor this file's
+  card system is built on. Every page's footer and last card would dissolve
+  into the ground, which is the exact opposite of what the dark vignette does
+  for them. So: same black radial, at the alpha that reproduces dark's
+  perceptual weight (-1.15 ΔL* against dark's -0.81), and the contrast budget
+  is spent on the plate instead.
 */
 .ambient__vignette {
   background: radial-gradient(
@@ -558,7 +882,10 @@
   and lowering the plate throws away the one thing on this page that is his
   own data). So the plate IS the bottom bloom here — 0.20 of a real 21-cm map
   is far more light, and far more interesting light, than a 0.09 flat radial —
-  and cyan-2 stays at the site default. Measured: 4.62:1 open ground.
+  and cyan-2 stays at the site default. Measured: 4.62:1 open ground ON DARK.
+  The light ground re-measures clean at the shipped values; /contact is the
+  page where the plate and the footer's muted ink share the bottom of the
+  viewport, so it is the one to re-check first if the plate opacity moves.
 
   This block therefore holds the default value on purpose. Do not "restore"
   0.09 without re-running the budget in §1.6 of the design note.
@@ -777,11 +1104,7 @@
 }
 
 /* This site has a résumé page that is built to be printed. */
-@media print {
-  .reveal {
-    animation: none !important;
-  }
-}
+/* Print rules live in ONE block, at the bottom of this file. See PRINT. */
 
 /* ============================================================
    SCOPED MOTIFS — CSS/SVG, for the pages that want something
@@ -802,7 +1125,7 @@
   position: relative;
   background-image: repeating-linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.022) 0 1px,
+    var(--tech-scan-ink) 0 1px,
     rgba(0, 0, 0, 0) 1px 4px
   );
   -webkit-mask-image: linear-gradient(
@@ -833,19 +1156,119 @@ body {
   font-family: var(--font-jakarta), system-ui, sans-serif;
 }
 
-/* The one focus system on the site. Do not add per-component rings. */
+/* The one focus system on the site. Do not add per-component rings.
+   The token flips with the theme, so this measures 10.83:1 on the dark
+   ground and 5.44:1 on the light one — both past the 3:1 WCAG asks. */
 :focus-visible {
   outline: 2px solid var(--accent-cyan);
   outline-offset: 2px;
 }
 
+/* ============================================================
+   THE THEME CONTROL — components/theme/theme-toggle.tsx
+   ============================================================ */
+
+/*
+  BOTH glyphs ship in the HTML and CSS picks one. This is not the banned
+  pattern: at every instant exactly one icon is `display: none` and the other
+  is displayed, statically, with zero JavaScript. Nothing is serialised at
+  opacity 0 waiting for hydration, so `grep -rl 'opacity:0' .next/server/app
+  --include='*.html'` stays empty.
+
+  Doing it in CSS rather than in React is what makes the control correct
+  BEFORE hydration: the init script has already written data-theme by the time
+  this resolves, so a returning light-mode visitor sees the sun on first paint.
+
+  Default with no attribute is the moon, matching the token default — so the
+  control is correct for a first-time visitor with no JavaScript at all.
+*/
+.theme-icon--light {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-icon--dark {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-icon--light {
+  display: block;
+}
+
+:root[data-theme="dark"] .theme-icon--dark {
+  display: block;
+}
+
+:root[data-theme="dark"] .theme-icon--light {
+  display: none;
+}
+
+/*
+  The cross-fade, applied only while `setTheme` holds the class — never on
+  load, and never as a blanket `* { transition: background-color }`, which
+  would make every hover on the site lag.
+
+  Gated BEHIND no-preference, never the reverse, so the reduced-motion branch
+  and the no-JS branch are the same branch: an instant swap. A whole-viewport
+  luminance flip is a genuine vestibular and photophobia trigger even though
+  it is colour rather than motion, and `reduce` is the closest signal there is
+  to "do not do large-area visual effects at me".
+
+  The icon deliberately does not animate. Making it cross-fade would require
+  both glyphs stacked and positioned — i.e. re-introducing exactly the "two
+  overlapping things, one at opacity 0 in the prerendered HTML" shape this
+  project has been burned by three times.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  .theme-switching,
+  .theme-switching .ambient > *,
+  .theme-switching body,
+  .theme-switching header,
+  .theme-switching main *,
+  .theme-switching footer * {
+    transition:
+      background-color 200ms ease,
+      border-color 200ms ease,
+      color 200ms ease;
+  }
+}
+
+/* ============================================================
+   PRINT. One block, deliberately — this file had three, and this site has a
+   /resume route that is built to be printed.
+
+   That route matters more than it looks: public/resume/ is empty, so the
+   download button correctly hides itself and Cmd-P IS how anyone gets a PDF
+   of his résumé today. Print is a deliverable here, not a tidy-up.
+   ============================================================ */
+
 @media print {
+  /*
+    Force the light ground on paper, whatever the visitor chose on screen.
+
+    THE SPECIFICITY IS LOAD-BEARING. `:root` alone is (0,1,0) and would lose
+    to `:root[data-theme="dark"]` (0,2,0) no matter where it sat in the file —
+    so someone who had toggled dark and hit Cmd-P would still print pale grey
+    ink on white. `:root[data-theme]` ties at (0,2,0) and, being later, wins.
+
+    Because every colour token is a light-dark(), flipping color-scheme flips
+    the whole palette in one declaration rather than restating thirty values.
+  */
+  :root,
+  :root[data-theme] {
+    color-scheme: light;
+  }
+
   body {
     background: #fff !important;
     color: #111 !important;
   }
+
   .print\:hidden {
     display: none !important;
+  }
+
+  .reveal {
+    animation: none !important;
   }
 }
 

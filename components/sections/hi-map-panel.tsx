@@ -61,7 +61,14 @@ export function HiMapPanel({ className }: { className?: string }) {
       <figcaption className="mt-3 font-mono text-label uppercase text-text-muted">
         Simulated 21-cm map · x
         <span className="lowercase">HI</span> {STAGES.map((s) => s.xhi).join(" → ")}
-        <span className="mt-1 block normal-case tracking-normal text-text-muted/80">
+        {/*
+          Full-strength --text-muted, no /80. Measured in the rendered page,
+          the 80% modifier composited to 3.92:1 against the card here — an AA
+          failure at 12px, on the one sentence that makes the graphic mean
+          anything. It predates the light theme; it is fixed here because the
+          same sweep measured it. At full strength: 5.46:1 dark, 6.04:1 light.
+        */}
+        <span className="mt-1 block normal-case tracking-normal">
           His own simulation. Dark regions are ionized bubbles; the field is
           neutral hydrogen.
         </span>

@@ -62,6 +62,18 @@ const PLATES: Record<AmbientVariant, readonly Plate[]> = {
  * `media` mirrors the breakpoint rules in globals.css exactly, so a phone
  * never preloads a desktop-only map. Below 1024 /research paints `mid`, not
  * `early`, because the three-plate sequence is desktop-only.
+ *
+ * THESE HINT THE DARK PLATES ONLY, and that is correct rather than an
+ * oversight. Each plate has a light twin (see PROVENANCE.md), but the theme
+ * is carried by a `data-theme` attribute and `media` cannot express one — and
+ * these pages are statically prerendered, so the <link rel=preload> is baked
+ * into the HTML at build time and no runtime check can vary it without making
+ * the route dynamic and costing all 21 static pages.
+ *
+ * Since dark is the unconditional default, the dark file is the right hint for
+ * every visitor except the minority who have explicitly chosen light. Those
+ * get one wasted hint and then fetch the twin normally. Hinting both would
+ * cost every visitor a plate they will never paint, which is the worse trade.
  */
 const HINTS: Record<
   AmbientVariant,

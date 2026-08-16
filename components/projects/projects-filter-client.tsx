@@ -67,9 +67,15 @@ export function ProjectsFilterClient({
         button's accessible name "Research 3" rather than "Research3".
       */}
       {f.label}{" "}
-      <span
-        className={active === f.id ? "text-accent-cyan/70" : "text-text-muted"}
-      >
+      {/*
+        No /70 on the count. The modifier subdued it against the label on the
+        dark ground, but the light accent is already a deep ink: measured in
+        the rendered page, 70% of #00697f over the ground is 3.11:1 at 12px —
+        an AA failure on a number that carries information. Full strength is
+        5.44:1, and the count still reads as secondary because it is a numeral
+        beside a word.
+      */}
+      <span className={active === f.id ? "text-accent-cyan" : "text-text-muted"}>
         {f.count}
       </span>
     </button>

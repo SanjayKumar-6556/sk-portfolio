@@ -848,3 +848,58 @@ body {
     display: none !important;
   }
 }
+
+/* ============================================================
+   THE HERO HI-MAP PANEL — components/sections/hi-map-panel.tsx
+
+   Three of his simulation boxes cross-fading through reionization.
+   Only opacity animates: it composites, and there is no repaint.
+   ============================================================ */
+
+.hi-map__frame {
+  opacity: 0;
+}
+
+/* No motion support, or motion not wanted: hold the middle stage. It has the
+   most legible structure of the three, and a still map is a fine outcome. */
+.hi-map__frame--1 {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hi-map__frame {
+    animation: hi-map-cycle 18s ease-in-out infinite;
+  }
+  .hi-map__frame--0 {
+    animation-delay: -18s;
+  }
+  .hi-map__frame--1 {
+    animation-delay: -12s;
+  }
+  .hi-map__frame--2 {
+    animation-delay: -6s;
+  }
+}
+
+/*
+  Each frame holds for a third of the loop, then hands over in 0.6s.
+
+  The handover is deliberately fast. A slow cross-fade between these three
+  looks broken rather than smooth: x_HI 0.88 is a bright green field and
+  x_HI 0.29 is mostly black, so at 50/50 the panel is a muddy olive that
+  matches neither and reads as a rendering fault. Long enough to see, short
+  enough not to sit in the middle.
+*/
+@keyframes hi-map-cycle {
+  0%,
+  30% {
+    opacity: 1;
+  }
+  33.34%,
+  96.66% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

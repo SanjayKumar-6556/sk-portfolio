@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Aside, Bleed } from "@/components/layout/shell";
 import { CredentialStrip } from "@/components/sections/credentials";
-import { CosmicNodeFallback } from "@/components/three/cosmic-node-fallback";
+import { HiMapPanel } from "@/components/sections/hi-map-panel";
 import { Button } from "@/components/ui/button";
 import { resumeSummary } from "@/lib/resume-data";
 import { siteConfig } from "@/lib/site-config";
@@ -101,7 +101,7 @@ export function Hero() {
       */}
       <Aside className="self-center" sticky={false}>
         <div className="relative rounded-card border border-border-subtle bg-surface-card p-6 shadow-lift-1">
-          <CosmicNodeFallback idPrefix="hero-graphic" className="w-full" />
+          <HiMapPanel className="w-full" />
           {/* Corner ticks — the instrument grammar, four hairline Ls. */}
           <span
             aria-hidden

@@ -139,7 +139,15 @@ export function SiteHeader() {
         creates a containing block for fixed descendants — which is exactly why
         the mobile panel is a sibling of this element and not a child of it.
       */}
-      <header className="sticky top-0 z-50 border-b border-border-subtle bg-[color-mix(in_srgb,var(--bg-base)_72%,transparent)] backdrop-blur-md print:hidden">
+      {/*
+        The light bar needs MORE of itself than the dark one, and a real
+        hairline. A 72% wash of a near-white ground over a near-white page is
+        not a bar — measured, it separates by under 1 L* — whereas the same
+        recipe on near-black reads clearly because the content scrolling under
+        it is so much lighter than the ground. So light goes to a white wash
+        that is brighter than its own page, and takes the next border weight up.
+      */}
+      <header className="sticky top-0 z-50 border-b border-border-subtle bg-[color-mix(in_srgb,var(--bg-base)_72%,transparent)] backdrop-blur-md light:border-border-default light:bg-[color-mix(in_srgb,white_76%,transparent)] print:hidden">
         <div className="shell-row flex h-16 items-center justify-between gap-6">
           <Link
             href="/"

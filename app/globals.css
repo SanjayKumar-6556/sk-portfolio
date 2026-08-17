@@ -475,7 +475,10 @@
   --ambient-mesh-cyan-2: 0.05; /* bottom, the secondary source  */
   --ambient-mesh-violet: 0.025; /* top-left, the accent whisper  */
   --ambient-vignette: 0.62;
+  /* One line, deliberately — see the note on the light value below. */
+  --ambient-vignette-image: radial-gradient(128% 96% at 50% -5%, rgba(0, 0, 0, 0) 36%, rgba(0, 0, 0, var(--ambient-vignette)) 100%);
   --ambient-plate-fade: 84%; /* where the top-anchored plate reaches zero */
+  --ambient-plate-origin: 50%; /* horizontal core of the plate mask */
 
   /*
     Four things in this stack were written as literals inside their rules,
@@ -526,6 +529,28 @@
   --ambient-mesh-cyan-2: 0.15;
   --ambient-mesh-violet: 0.075;
   --ambient-vignette: 0.03;
+
+  /*
+    THE HERO POOL. Dark focuses the page by pulling the rim down; on paper that
+    move is unavailable — a black rim measures -24.9 ΔL* and reads as a burnt
+    frame, and a white rim lifts the corner ground until cards dissolve into it
+    (+1.77 ΔL* against a ~2 ΔL* visibility floor).
+
+    So light focuses from the middle instead: a soft white pool behind the hero
+    that BRIGHTENS the field the headline sits on. On a dark-text page that is
+    free contrast rather than a cost, which is the whole reason it can exist.
+    It is gone by 62%, well above where the first cards start, so the card
+    system never sees it.
+  */
+  /* KEEP THIS VALUE ON ONE LINE. Broken across lines after the colon, the
+     minifier drops the declaration AND the one after it — silently, with the
+     build still passing. It cost an hour once; do not reformat it. */
+  --ambient-vignette-image: radial-gradient(74% 52% at 42% 6%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.22) 34%, rgba(255, 255, 255, 0) 62%), radial-gradient(120% 90% at 50% -5%, rgba(0, 0, 0, 0) 42%, rgba(16, 20, 34, var(--ambient-vignette)) 100%);
+
+  /* Bias the plate's core to the right of the 640px reading column, which is
+     what the dark theme's own comment always intended. */
+  --ambient-plate-origin: 64%;
+
   --ambient-grid-ink: rgba(0, 105, 127, 0.1);
   --tech-scan-ink: rgba(16, 20, 34, 0.035);
   --plate-early: url("/backgrounds/eor-early-light.webp");
@@ -668,16 +693,25 @@
 
 .ambient__plates {
   overflow: hidden;
-  /* The mask lives on the WRAPPER, not on the plate, so the scroll drift
-     below cannot make the fade edge crawl. */
+  /*
+    The mask lives on the WRAPPER, not on the plate, so the scroll drift
+    below cannot make the fade edge crawl.
+
+    The origin is a token because the intent stated one line below —
+    "densest structure under the right rail" — was only ever expressed by the
+    background-position, and measuring the rendered page shows it does not
+    actually land: ambient activity in the rail versus the reading column comes
+    out at a ratio of 1.03. Moving the mask's core off centre is what makes the
+    reading column the calm part of the field and gives his data the rail.
+  */
   -webkit-mask-image: radial-gradient(
-    130% 88% at 50% -6%,
+    130% 88% at var(--ambient-plate-origin) -6%,
     #000 0%,
     #000 24%,
     rgba(0, 0, 0, 0) var(--ambient-plate-fade)
   );
   mask-image: radial-gradient(
-    130% 88% at 50% -6%,
+    130% 88% at var(--ambient-plate-origin) -6%,
     #000 0%,
     #000 24%,
     rgba(0, 0, 0, 0) var(--ambient-plate-fade)
@@ -847,12 +881,15 @@
   perceptual weight (-1.15 ΔL* against dark's -0.81), and the contrast budget
   is spent on the plate instead.
 */
+/*
+  The whole gradient is a token, not just its alpha, because the two themes
+  need this layer to do OPPOSITE things and an alpha alone cannot express that.
+  Dark darkens the rim to push the ground away from light text; light brightens
+  the top-centre to pool light behind the hero, which pushes a near-white
+  ground AWAY from dark text — the same job, the only way round that works.
+*/
 .ambient__vignette {
-  background: radial-gradient(
-    128% 96% at 50% -5%,
-    rgba(0, 0, 0, 0) 36%,
-    rgba(0, 0, 0, var(--ambient-vignette)) 100%
-  );
+  background: var(--ambient-vignette-image);
 }
 
 /* --- Per-variant tuning ------------------------------------------- */

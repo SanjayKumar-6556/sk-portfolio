@@ -44,13 +44,22 @@
     directions: #000 + #fff is the halation engine.
 
     Light is cool, not warm: a cream ground sits opposite cyan on the wheel
-    and makes the one accent on this site look dirty. The ground is pushed
-    further off white (ΔL* 4.7) than the dark ground is off black (3.0),
-    deliberately — that extra room is what the card and its hover state are
-    spent on below, and there is nowhere else to get it.
+    and makes the one accent on this site look dirty.
+
+    BLUEPRINT. The ground sits ΔL* 8.9 off white, not the 4.7 it used to —
+    deep enough that a card reads as an object on its own rather than needing
+    the shadow to do all the work: card separation goes +3.66 -> +5.96 ΔL*,
+    against dark's +3.10. It also gives the 21-cm plate and the mesh a field
+    dark enough to register on, which is what makes this read as a page with a
+    plate behind it rather than a white page with a tint.
+
+    The cost is contrast headroom. Muted ink lands 5.14:1 here against 5.50:1
+    on the lighter ground, and the ambient stack may only darken the ground by
+    ΔL* -4.97 before that ink fails, against -7.57 before. Every number below
+    was re-measured against this ground; do not treat the two as swappable.
   */
-  --bg-base: light-dark(#eceef4, #0b0b0c);
-  --bg-surface: light-dark(#f8f9fc, #111113);
+  --bg-base: light-dark(#e2e7f0, #0b0b0c);
+  --bg-surface: light-dark(#eff2f8, #111113);
 
   /*
     NOTE THE DIRECTION REVERSAL, and that it is not a mistake. --bg-elevated's
@@ -59,8 +68,8 @@
     invisible, so on light this steps DOWN. "Elevated" is a role — raised out
     of the text flow — not a luminance.
   */
-  --bg-elevated: light-dark(#e7eaf1, #16161a);
-  --bg-hover: light-dark(#e2e5ee, #1c1c21);
+  --bg-elevated: light-dark(#d8dde9, #16161a);
+  --bg-hover: light-dark(#d2d8e6, #1c1c21);
 
   /* Ink. Cool near-neutral greys in both themes — the dark inks carry a
      b-minus-r of 3/9/6 and the light ones 7/13/12, so neither theme answers
@@ -156,7 +165,7 @@
     the fill, and a recessed card cannot take --lift-2 on hover without
     reading as a hole.
   */
-  --surface-card: light-dark(rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.035));
+  --surface-card: light-dark(#f7f9fc, rgba(255, 255, 255, 0.035));
 
   /*
     Hover has to be a real step in the SAME direction as the resting
@@ -170,7 +179,7 @@
     the resting card is already ~96% of the way to white and there is no step
     left to spend.
   */
-  --surface-card-hover: light-dark(rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.06));
+  --surface-card-hover: light-dark(#ffffff, rgba(255, 255, 255, 0.06));
 
   /* 18px. Their 22px is tuned to a wider card; this reads the same at 640px. */
   --radius-card: 1.125rem;
@@ -520,14 +529,14 @@
   The plate is the big one and it is handled separately, below.
 */
 :root[data-theme="light"] {
-  --ambient-plate-opacity: 0.44;
-  --ambient-aurora-opacity: 0.5;
+  --ambient-plate-opacity: 0.62;
+  --ambient-aurora-opacity: 0.6;
   --ambient-aurora-ink: 3, 105, 140;
   --ambient-aurora-ink-2: 93, 75, 147;
   --ambient-grain-opacity: 0.032;
-  --ambient-mesh-cyan: 0.195;
-  --ambient-mesh-cyan-2: 0.15;
-  --ambient-mesh-violet: 0.075;
+  --ambient-mesh-cyan: 0.24;
+  --ambient-mesh-cyan-2: 0.19;
+  --ambient-mesh-violet: 0.09;
   --ambient-vignette: 0.03;
 
   /*
@@ -551,7 +560,10 @@
      what the dark theme's own comment always intended. */
   --ambient-plate-origin: 64%;
 
-  --ambient-grid-ink: rgba(0, 105, 127, 0.1);
+  /* The /projects plot grid, on paper. Light needs roughly twice dark's alpha
+     for the same perceptual step: measured, one hairline is +2.98 ΔL* on dark
+     at 0.05 and -2.9 on paper at 0.13. */
+  --ambient-grid-ink: rgba(0, 105, 127, 0.13);
   --tech-scan-ink: rgba(16, 20, 34, 0.035);
   --plate-early: url("/backgrounds/eor-early-light.webp");
   --plate-mid: url("/backgrounds/eor-mid-light.webp");

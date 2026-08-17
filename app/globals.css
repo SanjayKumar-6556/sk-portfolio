@@ -497,9 +497,6 @@
   --ambient-aurora-ink: 0, 209, 255; /* the band colour, as a bare rgb triplet */
   --ambient-aurora-ink-2: 167, 139, 250;
   --ambient-grid-ink: rgba(0, 209, 255, 0.05); /* /projects plot grid hairline */
-  /* One line — a multi-value custom property broken after the colon is dropped
-     by the minifier, silently. See the note in the light block. */
-  --ambient-grid-mask: radial-gradient(72% 62% at 50% 0%, #000, rgba(0, 0, 0, 0) 78%);
   --tech-scan-ink: rgba(255, 255, 255, 0.022); /* the [slug] spec-rail scanlines */
 
   /* See the note at .ambient__plate--early for why these are variables. */
@@ -532,14 +529,14 @@
   The plate is the big one and it is handled separately, below.
 */
 :root[data-theme="light"] {
-  --ambient-plate-opacity: 0.42;
-  --ambient-aurora-opacity: 0.45;
+  --ambient-plate-opacity: 0.62;
+  --ambient-aurora-opacity: 0.6;
   --ambient-aurora-ink: 3, 105, 140;
   --ambient-aurora-ink-2: 93, 75, 147;
   --ambient-grain-opacity: 0.032;
-  --ambient-mesh-cyan: 0.16;
-  --ambient-mesh-cyan-2: 0.13;
-  --ambient-mesh-violet: 0.06;
+  --ambient-mesh-cyan: 0.24;
+  --ambient-mesh-cyan-2: 0.19;
+  --ambient-mesh-violet: 0.09;
   --ambient-vignette: 0.03;
 
   /*
@@ -563,20 +560,10 @@
      what the dark theme's own comment always intended. */
   --ambient-plate-origin: 64%;
 
-  /*
-     DRAFTING PAPER. On light the grid is not an accent on one route, it is the
-     ground on every route — so it needs a mask that covers the page rather
-     than a bloom at the top, and an alpha that reads as paper rather than as a
-     hint. Measured: one hairline is -3.6 ΔL* here against dark's +2.98, and
-     the pitch stays an even 48px on integer 1px lines, so it cannot beat
-     against the device pixel grid.
-  */
-  --ambient-grid-ink: rgba(0, 105, 127, 0.07);
-  --ambient-grid-mask: linear-gradient(180deg, #000 0%, #000 74%, rgba(0, 0, 0, 0) 100%);
-
-  /* The plate steps back: a full-page lattice and a 0.62 map are two textures
-     competing for the same field. The plate is still the loudest thing in the
-     rail, it just stops being the loudest thing everywhere. */
+  /* The /projects plot grid, on paper. Light needs roughly twice dark's alpha
+     for the same perceptual step: measured, one hairline is +2.98 ΔL* on dark
+     at 0.05 and -2.9 on paper at 0.13. */
+  --ambient-grid-ink: rgba(0, 105, 127, 0.13);
   --tech-scan-ink: rgba(16, 20, 34, 0.035);
   --plate-early: url("/backgrounds/eor-early-light.webp");
   --plate-mid: url("/backgrounds/eor-mid-light.webp");
@@ -848,27 +835,19 @@
   ink is a token — measured, one hairline is +2.98 ΔL* dark at 0.05 and
   -2.9 light at 0.10.
 */
-/*
-  The element is always in the tree; these two rules decide who sees it.
-  Dark keeps it to /projects, unchanged. Light shows it on every route and
-  across the whole viewport, because there it is not an accent — it is the
-  paper the page is drawn on.
-*/
 .ambient__grid {
-  display: none;
   background-image:
     linear-gradient(var(--ambient-grid-ink) 1px, rgba(0, 0, 0, 0) 1px),
     linear-gradient(90deg, var(--ambient-grid-ink) 1px, rgba(0, 0, 0, 0) 1px);
   background-size:
     48px 48px,
     48px 48px;
-  -webkit-mask-image: var(--ambient-grid-mask);
-  mask-image: var(--ambient-grid-mask);
-}
-
-[data-ambient="projects"] .ambient__grid,
-:root[data-theme="light"] .ambient__grid {
-  display: block;
+  -webkit-mask-image: radial-gradient(
+    72% 62% at 50% 0%,
+    #000,
+    rgba(0, 0, 0, 0) 78%
+  );
+  mask-image: radial-gradient(72% 62% at 50% 0%, #000, rgba(0, 0, 0, 0) 78%);
 }
 
 /* --- Layer 4: the grain — the dither ------------------------------ */

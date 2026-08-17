@@ -123,15 +123,7 @@ export function Ambient({ variant }: { variant: AmbientVariant }) {
           ))}
         </div>
       ) : null}
-      {/*
-        Always rendered; CSS decides where it shows. On dark it is /projects
-        only, as it always was — instrumentation for the automation and scraper
-        work, where an EoR map would be a non-sequitur. On light it is the
-        ground itself: the page sits on drafting paper and the cards are sheets
-        laid on it. Keeping the decision in CSS rather than here is what lets
-        one server-rendered tree serve both, at zero JavaScript.
-      */}
-      <div className="ambient__grid" />
+      {variant === "projects" ? <div className="ambient__grid" /> : null}
       <div className="ambient__grain" />
       <div className="ambient__vignette" />
     </div>

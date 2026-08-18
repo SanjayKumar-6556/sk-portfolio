@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { timelineEntries } from "@/lib/about-data";
 import { getAllResearch } from "@/lib/content";
-import { experience } from "@/lib/resume-data";
+import { education, experience } from "@/lib/resume-data";
 import { cn } from "@/lib/utils";
 
 /**
@@ -14,12 +14,19 @@ import { cn } from "@/lib/utils";
  *
  *   value "MSc, Astronomy"          lib/about-data.ts  timelineEntries#msc.title
  *   detail "IIT Indore"             lib/about-data.ts  timelineEntries#msc.org
+ *   period "2024"                   lib/resume-data.ts education[0].period
  *   value "JCAP 12 (2025) 055"      content/research/bnn-cosmology.mdx  venue
+ *   detail "Second author of nine"  content/research/bnn-cosmology.mdx  My contribution
  *   value "AI/ML Software Engineer" lib/resume-data.ts experience[0].role
  *   detail "Nestack Technologies"   lib/resume-data.ts experience[0].org
  *   period "Mar 2025 — Present"     lib/resume-data.ts experience[0].period
  *
- * `label` ("Education" / "Published" / "Now") is structural UI, not a claim.
+ * `label` ("Education" / "Peer-reviewed paper" / "Now") is structural UI, not a
+ * claim — except that "peer-reviewed" is itself sourced: it is the wording of
+ * content/projects/bayesian-neural-network.mdx and content/research/msc-thesis.mdx.
+ * "Second author of nine" is content/research/bnn-cosmology.mdx ("I am the
+ * **second author of nine**") with the emphasis stripped. The thesis gets NO
+ * authorship string: "sole author" is written nowhere in this repo.
  *
  * The order is the argument: degree → paper → current role is the
  * physics→cosmology→AI arc stated as three facts, in one line, above the fold.
@@ -38,14 +45,20 @@ export function getCredentials(): Credential[] {
 
   const msc = timelineEntries.find((e) => e.id === "msc");
   if (msc) {
-    out.push({ label: "Education", value: msc.title, detail: msc.org });
+    out.push({
+      label: "Education",
+      value: msc.title,
+      detail: msc.org,
+      period: education[0]?.period,
+    });
   }
 
   const paper = getAllResearch().find((r) => r.type === "paper");
   if (paper) {
     out.push({
-      label: "Published",
+      label: "Peer-reviewed paper",
       value: paper.venue,
+      detail: "Second author of nine",
       href: `/research/${paper.slug}`,
     });
   }

@@ -15,7 +15,7 @@ stack:
   - Gemini API
   - LLM-based extraction
 status: shipped
-featured: true
+featured: false
 hero:
   src: /projects/hero-placeholder.svg
   alt: Abstract grid suggesting structured records extracted from unstructured pages
@@ -46,6 +46,9 @@ agree on a format, and none of them are obliged to keep their markup stable.
 - **Job-board scrapers** that collect listings from public boards.
 - **Gemini-based scrapers** that collect industry-service information, using the model to read
   page content and return structured fields.
+- **Google Maps scrapers**, part of the same data-collection work. I have kept this one to a
+  line: it is internal, and I would rather describe it accurately in conversation than write
+  more than I can substantiate here.
 
 ## Why an LLM belongs in one of these and not necessarily the other
 
@@ -61,6 +64,13 @@ page costs an API call, extraction is no longer deterministic, and "the model re
 plausible" is not the same as "the model returned something correct". That is why the two
 systems are not built identically — a well-structured board with a stable layout does not need a
 model, and paying for one there would be waste.
+
+## Related work at Nestack
+
+- [Campaign data platform and internal services](/projects/nestack-platform-work) — the internal
+  data layer and services this environment is built on.
+- [Template generation and bulk-mail automation](/projects/template-automation) — another
+  manual step in the same internal workflow, removed.
 
 ## What is not on this page
 

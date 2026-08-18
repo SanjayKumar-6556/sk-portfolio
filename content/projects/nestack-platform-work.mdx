@@ -1,7 +1,7 @@
 ---
 slug: nestack-platform-work
 title: Campaign data platform and internal services
-summary: Campaign activity lived entirely inside a third-party CRM with nothing owned locally. I designed and built the databases behind it, the notification services the internal team runs on, and took ownership of a set of existing PHP applications.
+summary: Campaign activity lived entirely inside a third-party CRM with nothing owned locally. I designed the MySQL schemas, backend APIs and dashboards behind it, built the notification services the internal team runs on, and took ownership of a set of existing PHP applications.
 category: backend
 tags:
   - Data modelling
@@ -11,8 +11,9 @@ tags:
 year: 2025
 role: AI engineer, Nestack Technologies
 stack:
-  - Databases
-  - Backend services
+  - MySQL
+  - Backend APIs
+  - Python
   - PHP (inherited applications)
 status: shipped
 featured: false
@@ -24,12 +25,14 @@ publishedAt: "2026-08-12"
 
 ## In one line
 
-The company ran campaigns out of a third-party CRM and kept no campaign data of its own. I built
-the databases that changed that, plus the notification services the internal team uses, and took
-over a set of existing PHP applications that had lost their owner.
+The company ran campaigns out of a third-party CRM and kept no campaign data of its own. I
+designed the MySQL schemas, backend APIs and dashboards that changed that, built the
+notification services the internal team runs on, and took over a set of existing PHP
+applications.
 
-**Skills demonstrated:** data modelling from scratch, backend service delivery, taking ownership
-of inherited code, working inside constraints set by third-party tools.
+**Skills demonstrated:** relational data modelling from scratch, backend API and dashboard
+delivery, production Python automation, taking ownership of inherited code, working inside
+constraints set by third-party tools.
 
 ## Context
 
@@ -43,13 +46,14 @@ nothing for internal tools to build on.
 
 ## What I built
 
-**Campaign databases.** I designed and built the databases that give campaign activity a home
-inside the company rather than only inside the CRM. This is the foundation piece: nothing else
+**Campaign databases.** I designed the MySQL schemas, backend APIs and dashboards that give
+campaign activity a home inside the company rather than only inside the CRM. This is the foundation piece: nothing else
 on this page — notifications, internal tooling, reporting — is possible while the only copy of
 the data lives behind a vendor's API.
 
-**Notification services.** Services that tell the internal team when something has happened,
-rather than requiring someone to notice it. Internal notification plumbing is unglamorous and it
+**Notification services.** Production Python automation for internal business workflows,
+including the services that tell the internal team when something has happened rather than
+requiring someone to notice it. Internal notification plumbing is unglamorous and it
 is exactly the difference between a system people trust and a system people re-check by hand.
 
 **Inherited PHP applications.** I took over a set of existing PHP applications and rebuilt a
@@ -60,15 +64,24 @@ costing something.
 
 ## Also on this platform
 
-Two further pieces of work at Nestack that belong to the same internal environment:
+Four further pieces of work at Nestack that belong to the same internal environment:
 
+- **An internal ERP system** for associate workflows and the projects that run through them.
 - **A demo automation pipeline** — automating the production of product demos rather than
   assembling each one by hand.
 - **A neural pipeline that classifies emails by sentiment**, giving the team a signal on
   incoming mail that previously required someone to read it.
+- **GitHub Actions workflows for automated software generation**, integrating Claude AI.
 
-I have kept both short here on purpose: they are internal, and I would rather describe them
+I have kept all four short here on purpose: they are internal, and I would rather describe them
 accurately in conversation than pad this page with detail I cannot substantiate publicly.
+
+## Related work at Nestack
+
+- [Template generation and bulk-mail automation](/projects/template-automation) — the internal
+  app that took the manual step out of the campaign sending path.
+- [Job-board and industry-service scrapers](/projects/intelligent-scrapers) — the collection
+  side of the same internal environment.
 
 ## What is not on this page
 

@@ -77,11 +77,19 @@ export default function AboutPage() {
       {/*
         Must stay the immediately following sibling of the section above — grid
         auto-placement only puts it on that row if it is next. Hidden below
-        1024; the same three facts are stated in the prose beside it.
+        1024; the same three facts are repeated inline below for small screens.
       */}
       <Aside>
         <CredentialPanel />
       </Aside>
+
+      {/* Aside is hidden below 1024, which took the paper, the venue and its
+          link off the page on the device most cold links are opened on.
+          components/layout/shell.tsx prescribes exactly this: render it inline
+          in the reading column when a page needs it on mobile. */}
+      <section className="mt-10 lg:hidden">
+        <CredentialPanel />
+      </section>
 
       <section className="mt-16 md:mt-24 lg:mt-32">
         <div className="reveal">

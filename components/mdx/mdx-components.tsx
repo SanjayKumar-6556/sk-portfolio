@@ -143,6 +143,6 @@ export const mdxComponents: MDXRemoteProps["components"] = {
 
   // Available to MDX as <Figure src=… alt=… caption=… width=… height=… />.
   // Every image on this site is a real research figure; see
-  // public/research/figures/PROVENANCE.md.
+  // docs/figure-provenance.md.
   Figure,
 };

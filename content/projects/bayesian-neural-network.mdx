@@ -1,7 +1,7 @@
 ---
 slug: bayesian-neural-network
 title: Uncertainty-aware neural emulators for 21-cm cosmology
-summary: Neural surrogates that replace hours of cosmological simulation with milliseconds of prediction — plus a Bayesian version that reports what it does not know, so emulator error reaches the final parameter constraints.
+summary: Neural surrogates standing in for a cosmological simulation too expensive to run inside a sampler — plus a Bayesian version that reports what it does not know, so emulator error reaches the final parameter constraints.
 category: research
 tags:
   - Bayesian deep learning
@@ -37,7 +37,7 @@ metrics:
 
 {/*
   ASSET NOTE (not rendered). Four figures are now wired in below, all his own — see
-  public/research/figures/PROVENANCE.md for the source of each and for the one figure
+  docs/figure-provenance.md for the source of each and for the one figure
   that was extracted and then deleted because the thesis credits it elsewhere.
 
   Still on disk, not yet used, if this page ever wants more:
@@ -53,13 +53,13 @@ metrics:
 
 ## In one line
 
-I built two neural emulators of a cosmological signal — one deterministic, one Bayesian — and
-put them inside an MCMC pipeline that infers the astrophysics of the early Universe from a
-simulated radio-telescope measurement. The Bayesian one carries its own prediction uncertainty
+I retrained and improved an existing deterministic emulator of a cosmological signal, built a
+Bayesian one, and put both inside an MCMC pipeline that infers the astrophysics of the early
+Universe from a simulated radio-telescope measurement. The Bayesian one carries its own prediction uncertainty
 all the way into the final parameter contours.
 
-**Skills demonstrated:** surrogate modelling, Bayesian deep learning, calibrated uncertainty,
-likelihood design, MCMC, evaluation under shrinking training data, research code packaging.
+**Skills demonstrated:** surrogate modelling, Bayesian deep learning, propagating model
+uncertainty into a likelihood, likelihood design, MCMC, evaluation under shrinking training data.
 
 ## Context
 
@@ -71,7 +71,7 @@ spectrum.
 Predicting that power spectrum from a given set of astrophysical parameters requires a
 semi-numerical simulation — expensive enough that you cannot afford to run it inside a sampler
 that needs millions of forward evaluations. An **emulator** replaces the simulation with a
-neural network that answers in milliseconds.
+neural network fast enough to sit inside the sampler.
 
 This was my MSc thesis project at the Department of Astronomy, Astrophysics & Space Engineering,
 IIT Indore, supervised by Dr. Suman Majumdar, carried out between June 2023 and May 2024. The
@@ -80,8 +80,8 @@ work later became part of a peer-reviewed paper (details under *Artifacts*).
 ## My role
 
 I did the emulator and inference work described on this page as my own thesis project: the
-training-library preparation, both emulator families, the likelihood, the sampler, and the
-analysis. On the resulting journal paper I am **second author of nine**; the 21-cm
+training-library preparation, the improvement of the existing ANN emulator, the Bayesian
+emulator, the likelihood, the sampler, and the analysis. On the resulting journal paper I am **second author of nine**; the 21-cm
 power-spectrum emulator is the part of that paper I presented as **first author** on a
 conference poster. The paper's bispectrum emulator is collaborators' work and I do not claim it.
 
@@ -189,7 +189,8 @@ power spectrum is relatively insensitive to it over much of the range.
   caption="What that buys at the end of the pipeline: posteriors on the three reionization parameters, inferred through each emulator, three chains apiece. The dotted lines are the true values the mock observation was generated from."
 />
 
-- Two working emulators, ANN and BNN, for the 21-cm power spectrum at `z ≈ 7`.
+- Two working emulators for the 21-cm power spectrum at `z ≈ 7` — the existing ANN, retrained
+  and improved, and a new BNN.
 - An inference pipeline in which emulator uncertainty, sample variance and instrument noise are
   combined in a single covariance.
 - A robustness study across four training-set sizes and three fiducial scenarios showing the BNN

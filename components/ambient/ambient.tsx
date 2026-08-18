@@ -64,7 +64,7 @@ const PLATES: Record<AmbientVariant, readonly Plate[]> = {
  * `early`, because the three-plate sequence is desktop-only.
  *
  * THESE HINT THE DARK PLATES ONLY, and that is correct rather than an
- * oversight. Each plate has a light twin (see PROVENANCE.md), but the theme
+ * oversight. Each plate has a light twin (see docs/background-provenance.md), but the theme
  * is carried by a `data-theme` attribute and `media` cannot express one — and
  * these pages are statically prerendered, so the <link rel=preload> is baked
  * into the HTML at build time and no runtime check can vary it without making

@@ -7,7 +7,7 @@ import { siteConfig } from "@/lib/site-config";
 export const metadata = docMetadata({
   title: "Contact",
   description:
-    "Reach Sanjay Kumar Yadav for roles, collaborations, speaking, or consulting.",
+    "Sanjay Kumar Yadav is open to AI/ML engineering roles. Email, LinkedIn and GitHub — no form in between.",
   path: "/contact",
 });
 
@@ -44,7 +44,7 @@ export default function ContactPage() {
       <PageHeader
         crumbs={[{ label: "Home", href: "/" }, { label: "Contact" }]}
         title="Contact"
-        purpose="Have a project, a research collaboration, or a role in mind? Let's talk."
+        purpose="Open to AI/ML engineering roles. Email is the fastest way to reach me, and it is the only way this page offers — there is no form and nothing to fill in."
       />
 
       <section className="mt-10">
@@ -91,8 +91,9 @@ export default function ContactPage() {
         </p>
 
         <p className="mt-8 text-body text-text-secondary">
-          I work best with teams who care about measurable outcomes, honest
-          uncertainty, and systems that survive contact with reality.
+          I work best with teams that state their assumptions, decide how
+          something will be evaluated before building it, and would rather have
+          an honest error bar than a confident number.
         </p>
       </section>
 

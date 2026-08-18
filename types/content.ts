@@ -55,6 +55,8 @@ export const researchFrontmatterSchema = z.object({
   venue: z.string(),
   year: z.number(),
   abstract: z.string(),
+  /** Verbatim from the MDX body. Absent where the repo does not state it. */
+  authorship: z.string().optional(),
   pdf: z.string().optional(),
   slides: z.string().optional(),
   code: z.string().optional(),

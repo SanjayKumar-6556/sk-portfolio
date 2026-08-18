@@ -3,12 +3,22 @@ import { CtaFooter } from "@/components/sections/cta-footer";
 import { FeaturedProjects } from "@/components/sections/featured-projects";
 import { Hero } from "@/components/sections/hero";
 import { ResearchStrip } from "@/components/sections/research-strip";
+import { education, experience, resumeSkills } from "@/lib/resume-data";
 import { docMetadata } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
 
+/**
+ * The search-result snippet and the link unfurl — 156 characters, inside the
+ * ~160 Google renders. Sentence 1 is components/sections/hero.tsx verbatim (the
+ * only line on the site that states what job he wants, and it reached no
+ * metadata at all). Sentence 2 is the first clause of resumeSummary. The final
+ * clause is content/research/bnn-cosmology.mdx ("I am the **second author of
+ * nine**") joined to that file's `venue`. Nothing composed.
+ */
 export const metadata = docMetadata({
-  title: siteConfig.identity,
-  description: siteConfig.tagline,
+  title: siteConfig.seoRole,
+  description:
+    "Open to AI/ML engineering roles. AI/ML engineer with a research background in cosmology and Bayesian inference; second author of nine on JCAP 12 (2025) 055.",
   path: "/",
 });
 
@@ -18,7 +28,15 @@ const jsonLd = {
   name: siteConfig.professionalName,
   alternateName: siteConfig.identity,
   url: siteConfig.url,
-  jobTitle: "AI Engineer",
+  // lib/resume-data.ts sets the precedence rule — the newest résumé wins.
+  // Hard-coding "AI Engineer" here made a fourth spelling of the same job.
+  jobTitle: experience[0].role,
+  alumniOf: { "@type": "CollegeOrUniversity", name: education[0].school },
+  worksFor: { "@type": "Organization", name: experience[0].org },
+  knowsAbout: resumeSkills
+    .replace(/\.$/, "")
+    .split(" · ")
+    .flatMap((g) => g.split(", ")),
   sameAs: [
     siteConfig.social.linkedin,
     siteConfig.social.github,

@@ -7,8 +7,9 @@ import type { ResearchFrontmatter } from "@/types/content";
  * The eyebrow carries the type, which is what stops three items reading as
  * three equal publications.
  *
- * No author list: researchFrontmatterSchema has no `authors` field and
- * inventing one would be a content edit.
+ * Authorship is a frontmatter field, copied verbatim out of each MDX body — it
+ * is never derived and never inferred. msc-thesis.mdx deliberately has none:
+ * "sole author" is written nowhere in the repo.
  */
 const rowLink = "relative hover:underline underline-offset-4";
 
@@ -29,6 +30,11 @@ export function ResearchRow({
       headingLevel={headingLevel}
     >
       <p className="mt-2 font-mono text-label text-text-muted">{item.venue}</p>
+      {item.authorship ? (
+        <p className="mt-1 font-mono text-label text-text-muted">
+          {item.authorship}
+        </p>
+      ) : null}
       <p className="mt-3 line-clamp-3 text-sec text-text-secondary">
         {item.abstract}
       </p>

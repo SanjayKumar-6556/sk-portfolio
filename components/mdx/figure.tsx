@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
  * A scientific figure inside a case study.
  *
  * These are real plots from his thesis, his poster and his own code — see
- * public/research/figures/PROVENANCE.md, which traces every one to its source
+ * docs/figure-provenance.md, which traces every one to its source
  * and records the one figure that was deliberately excluded because his thesis
  * credits it to somebody else. Nothing decorative goes through this component.
  *

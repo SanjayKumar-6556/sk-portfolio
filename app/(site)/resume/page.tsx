@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Ambient } from "@/components/ambient/ambient";
 import { PageHeader } from "@/components/layout/page-header";
 import { Aside } from "@/components/layout/shell";
+import { PrintButton } from "@/components/ui/print-button";
 import { SectionHeading } from "@/components/ui/section-heading";
 import {
   education,
@@ -113,6 +114,7 @@ export default function ResumePage() {
             Download PDF ↗
           </a>
         ) : null}
+        <PrintButton className={actionPill} />
         <a
           href={siteConfig.social.linkedin}
           target="_blank"

@@ -68,7 +68,7 @@ export default function ResearchPage() {
       <PageHeader
         crumbs={[{ label: "Home", href: "/" }, { label: "Research" }]}
         title="Research"
-        purpose="My foundation is in physics and probabilistic modeling — especially where rigorous inference meets messy data. That lens carries into how I design evaluations and communicate uncertainty in applied AI."
+        purpose="My foundation is in physics and probabilistic modeling — inference problems where the forward model is expensive and the error bars have to be defensible. That lens carries into how I design evaluations and communicate uncertainty in applied AI."
       />
 
       <FadeUp className="mt-10">

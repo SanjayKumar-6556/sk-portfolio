@@ -9,7 +9,7 @@ text as atmosphere rather than as illustration.
 `~/Downloads/SANJAY_MSC_THESIS.pdf`, page 36, **Figure 3.4**: *"Simulated HI map and power
 spectrum at x_HI values of 0.88, 0.63, and 0.29."* His own figure — the thesis credits six
 of its figures to other sources and this is not one of them, which was checked before
-using it. See `public/research/figures/PROVENANCE.md` for that audit and for the one
+using it. See `docs/figure-provenance.md` for that audit and for the one
 figure that was excluded because of it.
 
 The page was rendered at 260 dpi; the three square map panels were detected by scanning

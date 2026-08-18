@@ -3,6 +3,12 @@ import { siteConfig } from "@/lib/site-config";
 
 const titleSuffix = ` — ${siteConfig.professionalName}`;
 
+/**
+ * Name first, role second — the opposite order to the per-page template,
+ * because this is the string a recruiter sees when they search his name.
+ */
+const siteTitle = `${siteConfig.professionalName} — ${siteConfig.seoRole}`;
+
 export function pageTitle(page: string): string {
   return `${page}${titleSuffix}`;
 }
@@ -11,7 +17,7 @@ export function defaultMetadata(): Metadata {
   return {
     metadataBase: new URL(siteConfig.url),
     title: {
-      default: pageTitle(siteConfig.identity),
+      default: siteTitle,
       template: `%s${titleSuffix}`,
     },
     description: siteConfig.tagline,
@@ -19,13 +25,13 @@ export function defaultMetadata(): Metadata {
       type: "website",
       locale: "en_IN",
       url: siteConfig.url,
-      siteName: siteConfig.identity,
-      title: pageTitle(siteConfig.identity),
+      siteName: siteConfig.professionalName,
+      title: siteTitle,
       description: siteConfig.tagline,
     },
     twitter: {
       card: "summary_large_image",
-      title: pageTitle(siteConfig.identity),
+      title: siteTitle,
       description: siteConfig.tagline,
     },
     alternates: {

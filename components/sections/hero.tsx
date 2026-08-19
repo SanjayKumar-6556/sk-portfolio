@@ -83,7 +83,7 @@ export function Hero() {
             View work
           </Button>
           <Button href="/resume" variant="ghost">
-            Résumé
+            Resume
           </Button>
         </div>
       </div>

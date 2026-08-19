@@ -35,7 +35,7 @@ export function CtaFooter() {
             Email me
           </Button>
           <Button href="/resume" variant="ghost">
-            Résumé
+            Resume
           </Button>
         </div>
       </div>

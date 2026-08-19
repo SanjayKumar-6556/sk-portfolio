@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Plus_Jakarta_Sans, Syne } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans, Sora } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/layout/footer";
 import { PageTransition } from "@/components/layout/page-transition";
@@ -12,9 +12,16 @@ const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
 });
 
-const syne = Syne({
+/**
+ * The display face, and the only one on the site that renders exactly one
+ * string: the hero <h1>. It was Syne, whose lowercase j is a straight stem
+ * with a flat terminal and almost no descender — nothing clipped it, but at
+ * 56px it read as a cut-off letter in "Sanjay". Sora draws a proper hooked
+ * descender and keeps the geometric, instrument-like tone.
+ */
+const sora = Sora({
   subsets: ["latin"],
-  variable: "--font-syne",
+  variable: "--font-sora",
 });
 
 const geistMono = Geist_Mono({
@@ -66,7 +73,7 @@ export default function RootLayout({
         mismatch anywhere in the tree beneath it.
       */
       suppressHydrationWarning
-      className={`${jakarta.variable} ${syne.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${jakarta.variable} ${sora.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-screen flex-col bg-bg-base font-sans text-text-primary">
         {/*

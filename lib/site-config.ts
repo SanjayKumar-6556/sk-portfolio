@@ -30,10 +30,22 @@ export const siteConfig = {
   email: "sanjaykumaryadav10108@gmail.com",
   /** TODO: add your public phone number if you want it shown */
   phoneDisplay: "",
-  /** Set NEXT_PUBLIC_SITE_URL to your production domain before deploying */
+  /**
+   * Canonical origin. Only ever read on the server — robots.txt, sitemap.xml,
+   * metadataBase and the JSON-LD block — so the non-public Vercel variable is
+   * safe here. Do not read `url` from a "use client" component: the fallback
+   * would inline as undefined there and the two halves would disagree.
+   *
+   * NEXT_PUBLIC_SITE_URL wins, so a custom domain can override the Vercel one.
+   * VERCEL_PROJECT_PRODUCTION_URL is the project's production hostname without
+   * a protocol, and stays the production hostname on preview deployments —
+   * which is what canonicals and the sitemap should point at either way.
+   */
   url:
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
-    "http://localhost:3000",
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "http://localhost:3000"),
   /** Empty strings are treated as "not set" and are hidden everywhere. */
   social: {
     github: "https://github.com/SanjayKumar-6556",
